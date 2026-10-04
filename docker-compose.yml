@@ -1,0 +1,91 @@
+services:
+  # ============================================================================
+  # 1. BASE DE DATOS: PostgreSQL 16
+  # ============================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: vortex-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vortex_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vortex_secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-vortex_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vortex_user} -d ${POSTGRES_DB:-vortex_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - vortex-network
+
+  # ============================================================================
+  # 2. BACKEND: FastAPI (Python 3.11)
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vortex-backend
+    restart: unless-stopped
+    environment:
+      DB_USER: ${DB_USER:-vortex_user}
+      DB_PASSWORD: ${DB_PASSWORD:-vortex_secure_password}
+      DB_NAME: ${DB_NAME:-vortex_db}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT:-5432}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - vortex-network
+
+  # ============================================================================
+  # 3. FRONTEND: React + Vite (Node.js 20)
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vortex-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - vortex-network
+
+# ==============================================================================
+# REDES Y VOLÚMENES PERSISTENTES
+# ==============================================================================
+networks:
+  vortex-network:
+    driver: bridge
+    name: vortex-network
+
+volumes:
+  db_data:
+    name: vortex-db-data
