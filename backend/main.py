@@ -1,7 +1,15 @@
 import os
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from database import check_db_connection
+from database import check_db_connection, engine, Base
+import models
+from auth import router as auth_router
+
+# Inicialización automática de tablas en PostgreSQL
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Advertencia al inicializar tablas de la base de datos: {e}")
 
 app = FastAPI(
     title="VORTEX API",
@@ -20,6 +28,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Inclusión del enrutador de autenticación
+app.include_router(auth_router, prefix="/api/auth", tags=["Autenticación"])
 
 @app.get("/")
 def read_root():

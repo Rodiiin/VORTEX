@@ -1,15 +1,16 @@
 :root {
-  --bg-dark: #0a0c10;
-  --bg-card: rgba(18, 22, 31, 0.85);
-  --bg-card-border: rgba(255, 255, 255, 0.08);
+  --bg-dark: #161459;
+  --bg-card: rgba(22, 20, 89, 0.85);
+  --bg-card-border: rgba(92, 242, 242, 0.2);
   --text-primary: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --accent-cyan: #00f2fe;
-  --accent-blue: #4facfe;
-  --accent-magenta: #ff0844;
+  --text-secondary: #c2c8f0;
+  --accent-cyan: #5CF2F2;
+  --accent-blue: #2E338C;
+  --accent-purple: #5317A6;
+  --accent-lilac: #D2A2F2;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
-  --accent-red: #ef4444;
+  --accent-red: #ff3366;
   --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
@@ -20,11 +21,21 @@
   padding: 0;
 }
 
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+}
+
 body {
   font-family: var(--font-main);
-  background-color: var(--bg-dark);
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(92, 242, 242, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 90% 20%, rgba(210, 162, 242, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 15% 85%, rgba(46, 51, 140, 0.7) 0%, transparent 50%),
+    radial-gradient(circle at 85% 85%, rgba(83, 23, 166, 0.6) 0%, transparent 50%),
+    linear-gradient(135deg, #161459 0%, #2E338C 40%, #5317A6 80%, #161459 100%);
+  background-attachment: fixed;
   color: var(--text-primary);
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;

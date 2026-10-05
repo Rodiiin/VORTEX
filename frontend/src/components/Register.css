@@ -1,0 +1,222 @@
+/* ==========================================================================
+   VORTEX - REGISTER COMPONENT STYLES
+   Basado en el diseño circular HUD y paleta de colores del proyecto:
+     - #D2A2F2 (Neon Lilac Glow)
+     - #5317A6 (Electric Deep Purple)
+     - #161459 (Abyssal Cosmic Blue)
+     - #2E338C (Cyber Indigo / Royal Slate)
+     - #5CF2F2 (Electric Cyber Cyan Highlight)
+   ========================================================================== */
+
+/* Botón de Regresar (Flecha ↩ del bosquejo) */
+.register-back-btn {
+  background: rgba(83, 23, 166, 0.35);
+  border: 1px solid rgba(92, 242, 242, 0.4);
+  color: var(--vx-cyan, #5CF2F2);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 10px rgba(92, 242, 242, 0.2);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.register-back-btn:hover {
+  background: var(--vx-cyan, #5CF2F2);
+  color: #070716;
+  border-color: #ffffff;
+  transform: scale(1.1) rotate(-8deg);
+  box-shadow: 0 0 16px rgba(92, 242, 242, 0.7);
+}
+
+.register-back-btn:active {
+  transform: scale(0.95);
+}
+
+/* Fila de Encabezado con Botón de Regreso y Subtítulo */
+.register-subtitle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  width: 100%;
+  position: relative;
+  margin-top: 0.25rem;
+}
+
+.register-subtitle-row .register-back-btn {
+  position: absolute;
+  left: 0;
+}
+
+/* Safe area con scroll suave si la pantalla es reducida */
+.register-safe-area {
+  width: 86%;
+  max-width: 380px;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 2;
+  box-sizing: border-box;
+  padding: 0.5rem 0.2rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(92, 242, 242, 0.3) transparent;
+}
+
+.register-safe-area::-webkit-scrollbar {
+  width: 4px;
+}
+
+.register-safe-area::-webkit-scrollbar-thumb {
+  background: rgba(92, 242, 242, 0.3);
+  border-radius: 4px;
+}
+
+/* Formulario de Registro compacto para la esfera HUD */
+.register-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.register-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: left;
+}
+
+.register-form .form-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #f5f6fa;
+  text-transform: uppercase;
+  padding-left: 2px;
+}
+
+.register-form .cyber-input-wrapper {
+  border-radius: 8px;
+}
+
+.register-form .cyber-input {
+  padding: 0.55rem 0.65rem 0.55rem 0.55rem;
+  font-size: 0.84rem;
+}
+
+.register-form .input-icon-left {
+  padding-left: 0.65rem;
+}
+
+.register-form .btn-password-toggle {
+  padding: 0.4rem 0.65rem;
+}
+
+/* Botón principal de Submit para Registro */
+.btn-register-submit {
+  margin-top: 0.3rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.12em;
+}
+
+/* Banner de Notificación y Alerta */
+.register-alert {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  line-height: 1.3;
+  box-sizing: border-box;
+  animation: registerAlertIn 0.25s ease-out;
+  text-align: left;
+}
+
+.register-alert-success {
+  background: rgba(0, 255, 170, 0.18);
+  border: 1px solid rgba(0, 255, 170, 0.75);
+  color: #00ffaa;
+  box-shadow: 0 0 16px rgba(0, 255, 170, 0.35);
+  font-weight: 600;
+}
+
+/* Mensaje de Error en Texto Rojo Debajo del Formulario */
+.register-error-banner {
+  width: 100%;
+  margin-top: 0.45rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 51, 102, 0.16);
+  border: 1px solid rgba(255, 51, 102, 0.75);
+  border-radius: 8px;
+  color: #ff3366;
+  font-size: 0.76rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 0 14px rgba(255, 51, 102, 0.3);
+  animation: registerAlertIn 0.25s ease-out;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.register-error-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff3366;
+}
+
+.register-error-text {
+  flex: 1;
+}
+
+@keyframes registerAlertIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Footer de Registro */
+.register-footer {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #c2c8f0;
+}
+
+@media (max-width: 520px) {
+  .register-safe-area {
+    width: 90%;
+    max-width: 320px;
+  }
+  .register-form {
+    gap: 0.4rem;
+  }
+  .register-form .cyber-input {
+    padding: 0.48rem 0.55rem;
+    font-size: 0.8rem;
+  }
+}
