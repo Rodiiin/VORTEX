@@ -1,4 +1,4 @@
-# 🥊 VORTEX — Shadow Boxing AI Exergame
+# VORTEX — Shadow Boxing  Exergame
 
 [![Docker Compose](https://img.shields.io/badge/Docker_Compose-v2+-blue.svg?logo=docker&logoColor=white)](#)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](#)
