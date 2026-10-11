@@ -1,0 +1,589 @@
+/* ==========================================================================
+   VORTEX - MAIN MENU COMPONENT STYLES ("MainMenu.css")
+   Design: Immersive Split Screen UI (Art Placeholder / Options Panel)
+   Color Palette:
+     - #D2A2F2 (Neon Lilac)
+     - #5317A6 (Electric Deep Purple)
+     - #161459 (Abyssal Cosmic Blue)
+     - #2E338C (Cyber Indigo / Royal Slate)
+     - #5CF2F2 (Electric Cyber Cyan Highlight)
+   ========================================================================== */
+
+:root {
+  --vx-lilac: #D2A2F2;
+  --vx-purple: #5317A6;
+  --vx-deep-blue: #161459;
+  --vx-indigo: #2E338C;
+  --vx-cyan: #5CF2F2;
+  --vx-dark-surface: #0a0822;
+  --vx-panel-bg: rgba(14, 12, 45, 0.88);
+  --vx-border-glow: rgba(92, 242, 242, 0.35);
+  --vx-text-main: #f8f9fc;
+  --vx-text-muted: #c2c8f0;
+  --vx-danger: #ff3366;
+  --vx-font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   FULL-SCREEN WRAPPER & AMBIENT SCI-FI BACKGROUND
+   ========================================================================== */
+.mainmenu-wrapper {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  font-family: var(--vx-font-main);
+  background-color: var(--vx-deep-blue);
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(92, 242, 242, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(210, 162, 242, 0.25) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(83, 23, 166, 0.45) 0%, transparent 65%),
+    radial-gradient(circle at 10% 85%, rgba(46, 51, 140, 0.7) 0%, transparent 55%),
+    radial-gradient(circle at 90% 85%, rgba(83, 23, 166, 0.6) 0%, transparent 55%),
+    linear-gradient(135deg, #090820 0%, #161459 35%, #2E338C 70%, #0c0a24 100%);
+  background-attachment: fixed;
+}
+
+/* Cyber Grid Texture Overlay */
+.mainmenu-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(92, 242, 242, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(210, 162, 242, 0.06) 1px, transparent 1px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.9;
+}
+
+/* Floating Ambient Glow Spheres */
+.mainmenu-glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  animation: mainmenuPulse 9s ease-in-out infinite alternate;
+}
+
+.mainmenu-glow-orb-left {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, var(--vx-cyan), var(--vx-indigo));
+  top: -120px;
+  left: -120px;
+  opacity: 0.35;
+}
+
+.mainmenu-glow-orb-right {
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, var(--vx-lilac), var(--vx-purple));
+  bottom: -140px;
+  right: -120px;
+  opacity: 0.4;
+  animation-delay: -4s;
+}
+
+@keyframes mainmenuPulse {
+  0% { transform: scale(0.95); opacity: 0.3; }
+  100% { transform: scale(1.08); opacity: 0.45; }
+}
+
+/* ==========================================================================
+   IMMERSIVE SPLIT SCREEN CONTAINER
+   ========================================================================== */
+.mainmenu-card-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 1240px;
+  min-height: min(720px, 86vh);
+  border-radius: 24px;
+  background: var(--vx-panel-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--vx-border-glow);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.75),
+    0 0 35px rgba(83, 23, 166, 0.25),
+    inset 0 0 40px rgba(46, 51, 140, 0.2);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   1. LADO IZQUIERDO: CONTENEDOR VISUAL / ESPACIO RESERVADO PARA IMAGEN
+   ========================================================================== */
+.mainmenu-left-section {
+  flex: 1 1 50%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem;
+  background: radial-gradient(circle at 45% 50%, rgba(46, 51, 140, 0.3) 0%, rgba(10, 8, 34, 0.95) 85%);
+  box-sizing: border-box;
+}
+
+/* Contenedor simulador de Espacio para imagen con bordes tácticos */
+.mainmenu-art-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.75rem;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(16, 14, 52, 0.85) 0%, rgba(9, 7, 28, 0.95) 100%);
+  border: 1px solid rgba(92, 242, 242, 0.22);
+  box-shadow: 
+    inset 0 0 45px rgba(22, 20, 89, 0.8),
+    0 10px 30px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Tactical Sci-Fi Corner Brackets */
+.corner-bracket {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: var(--vx-cyan);
+  z-index: 2;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.bracket-tl {
+  top: 12px;
+  left: 12px;
+  border-top: 2px solid var(--vx-cyan);
+  border-left: 2px solid var(--vx-cyan);
+}
+
+.bracket-tr {
+  top: 12px;
+  right: 12px;
+  border-top: 2px solid var(--vx-cyan);
+  border-right: 2px solid var(--vx-cyan);
+}
+
+.bracket-bl {
+  bottom: 12px;
+  left: 12px;
+  border-bottom: 2px solid var(--vx-cyan);
+  border-left: 2px solid var(--vx-cyan);
+}
+
+.bracket-br {
+  bottom: 12px;
+  right: 12px;
+  border-bottom: 2px solid var(--vx-cyan);
+  border-right: 2px solid var(--vx-cyan);
+}
+
+/* Centro de Arte Conceptual: Gráfico temático y rótulo */
+.art-center-display {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.art-illustration-wrapper {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Anillo rotatorio de retícula */
+.art-reticle-ring {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1px dashed rgba(92, 242, 242, 0.35);
+  animation: artRingSpin 35s linear infinite;
+  pointer-events: none;
+}
+
+.art-reticle-inner-ring {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(210, 162, 242, 0.25);
+  pointer-events: none;
+}
+
+@keyframes artRingSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.art-boxing-svg {
+  width: 105px;
+  height: 105px;
+  color: var(--vx-cyan);
+  filter: drop-shadow(0 0 16px rgba(92, 242, 242, 0.6));
+  animation: boxerAura 3s ease-in-out infinite alternate;
+}
+
+@keyframes boxerAura {
+  0% { transform: scale(0.97); filter: drop-shadow(0 0 12px rgba(92, 242, 242, 0.5)); }
+  100% { transform: scale(1.03); filter: drop-shadow(0 0 24px rgba(210, 162, 242, 0.7)); }
+}
+
+.art-info-text-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.art-title-placeholder {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--vx-text-main);
+  text-transform: uppercase;
+  margin: 0;
+  text-shadow: 0 0 14px rgba(92, 242, 242, 0.35);
+}
+
+/* ==========================================================================
+   DIVISOR VERTICAL CENTRAL
+   ========================================================================== */
+.mainmenu-split-divider {
+  width: 4px;
+  background: linear-gradient(
+    180deg,
+    rgba(92, 242, 242, 0.05) 0%,
+    rgba(92, 242, 242, 0.4) 20%,
+    rgba(210, 162, 242, 0.8) 50%,
+    rgba(92, 242, 242, 0.4) 80%,
+    rgba(92, 242, 242, 0.05) 100%
+  );
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 0 16px rgba(92, 242, 242, 0.35);
+}
+
+/* ==========================================================================
+   2. LADO DERECHO: PANEL DE OPCIONES
+   ========================================================================== */
+.mainmenu-right-section {
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3.5rem 2.5rem;
+  position: relative;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Header de Opciones: Título "Vortex" */
+.mainmenu-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 3.2rem;
+}
+
+.mainmenu-title {
+  font-size: 4.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin: 0;
+  line-height: 1.1;
+  color: #ffffff;
+  /* Gradiente moderno y limpio con acento cyan y lila */
+  background: linear-gradient(135deg, #ffffff 40%, var(--vx-cyan) 80%, var(--vx-lilac) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(92, 242, 242, 0.35));
+}
+
+/* Contenedor Vertical de Botones */
+.mainmenu-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 380px;
+}
+
+/* Estilo base para botones del Menú (Forma Cápsula / Pill) */
+.menu-btn {
+  position: relative;
+  width: 100%;
+  padding: 1.15rem 2rem;
+  border-radius: 9999px; /* Forma de píldora idéntica al mockup */
+  font-family: var(--vx-font-main);
+  font-size: 1.12rem;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu-btn:focus-visible {
+  outline: 2px solid var(--vx-cyan);
+  outline-offset: 4px;
+}
+
+/* ==========================================================================
+   FILA DE ACCIONES PRINCIPALES: "Iniciar" y "Continuar" (Mismo Nivel)
+   ========================================================================== */
+.menu-btn-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   BOTÓN "Iniciar" (Limpio y secundario)
+   -------------------------------------------------------------------------- */
+.menu-btn-start {
+  flex: 1;
+  background: rgba(30, 27, 85, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(92, 242, 242, 0.35);
+  color: var(--vx-text-main);
+  padding: 1.1rem 1.25rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.menu-btn-start:hover {
+  background: rgba(46, 51, 140, 0.8);
+  border-color: var(--vx-cyan);
+  color: #ffffff;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(92, 242, 242, 0.3);
+}
+
+.menu-btn-start:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* --------------------------------------------------------------------------
+   BOTÓN "Continuar" (MÁS LLAMATIVO: Mayor jerarquía, gradiente neón vibrante)
+   -------------------------------------------------------------------------- */
+.menu-btn-continue {
+  flex: 1.25;
+  background: linear-gradient(135deg, var(--vx-cyan) 0%, #a580e2 50%, var(--vx-purple) 100%);
+  color: #070719;
+  font-weight: 800;
+  font-size: 1.15rem;
+  padding: 1.15rem 1.5rem;
+  box-shadow: 
+    0 8px 26px rgba(92, 242, 242, 0.5),
+    0 0 35px rgba(83, 23, 166, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Shimmer flare effect on Continuar button */
+.menu-btn-continue::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-25deg);
+  transition: 0.65s ease;
+  pointer-events: none;
+}
+
+.menu-btn-continue:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 
+    0 12px 35px rgba(92, 242, 242, 0.75),
+    0 0 50px rgba(210, 162, 242, 0.65);
+  color: #000000;
+}
+
+.menu-btn-continue:hover::before {
+  left: 140%;
+}
+
+.menu-btn-continue:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* --------------------------------------------------------------------------
+   BOTÓN 2 (SECUNDARIO): "Ajustes"
+   Diseño de panel oscuro con borde iluminado y hover suave
+   -------------------------------------------------------------------------- */
+.menu-btn-secondary {
+  background: rgba(46, 51, 140, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(92, 242, 242, 0.35);
+  color: var(--vx-text-main);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+
+.menu-btn-secondary:hover {
+  background: rgba(83, 23, 166, 0.7);
+  border-color: var(--vx-cyan);
+  color: #ffffff;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 8px 25px rgba(92, 242, 242, 0.3),
+    0 0 25px rgba(83, 23, 166, 0.4);
+}
+
+.menu-btn-secondary:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* --------------------------------------------------------------------------
+   BOTÓN 3 (SALIDA): "Salir"
+   Diseño minimalista con acento sutil de salida
+   -------------------------------------------------------------------------- */
+.menu-btn-exit {
+  background: rgba(22, 20, 89, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(210, 162, 242, 0.22);
+  color: var(--vx-text-muted);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.menu-btn-exit:hover {
+  background: rgba(255, 51, 102, 0.2);
+  border-color: rgba(255, 51, 102, 0.65);
+  color: #ffffff;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 8px 22px rgba(255, 51, 102, 0.35),
+    0 0 20px rgba(255, 51, 102, 0.2);
+}
+
+.menu-btn-exit:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* Iconos de botones (SVG inline) */
+.menu-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.menu-btn:hover .menu-btn-icon {
+  transform: scale(1.15);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MÓVILES Y PANTALLAS PEQUEÑAS)
+   ========================================================================== */
+@media (max-width: 960px) {
+  .mainmenu-wrapper {
+    padding: 1rem;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .mainmenu-card-container {
+    flex-direction: column;
+    min-height: auto;
+    margin: 1rem 0;
+    max-width: 580px;
+  }
+
+  .mainmenu-split-divider {
+    width: 100%;
+    height: 3px;
+  }
+
+  .mainmenu-left-section {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .mainmenu-art-placeholder {
+    min-height: 320px;
+  }
+
+  .mainmenu-right-section {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .mainmenu-title {
+    font-size: 3.4rem;
+  }
+
+  .mainmenu-header {
+    margin-bottom: 2rem;
+  }
+
+  .mainmenu-nav {
+    max-width: 100%;
+  }
+
+  .menu-btn {
+    padding: 1rem 1.5rem;
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainmenu-title {
+    font-size: 2.75rem;
+  }
+
+  .menu-btn-row {
+    gap: 0.5rem;
+  }
+
+  .menu-btn-start {
+    padding: 0.95rem 0.85rem;
+    font-size: 0.96rem;
+  }
+
+  .menu-btn-continue {
+    padding: 0.95rem 1rem;
+    font-size: 1rem;
+  }
+}

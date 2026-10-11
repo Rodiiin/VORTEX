@@ -19,18 +19,18 @@ El proyecto opera como un monorepo desacoplado compuesto por tres capas de servi
 ```mermaid
 flowchart LR
     subgraph Host ["💻 Entorno Local / Navegador"]
-        UserBrowser["Navegador Web"]
+        UserBrowser["Navegador Web\n(Login • Registro • Menú Principal • Dashboard)"]
     end
 
     subgraph DockerNet ["🐳 Red Docker: vortex-network"]
-        Frontend["Frontend (React + Vite)\nPuerto: 5173"]
-        Backend["Backend (FastAPI)\nPuerto: 8000"]
-        DB[("Base de Datos (PostgreSQL 16)\nPuerto: 5432")]
+        Frontend["Frontend (React 18 + Vite 5)\nPuerto: 5173\n• Login & Registro HUD\n• Menú Principal Split-Screen\n• Dashboard de Estado"]
+        Backend["Backend (FastAPI)\nPuerto: 8000\n• /api/health\n• /api/auth (Login & Registro)\n• SQLAlchemy + bcrypt"]
+        DB[("Base de Datos (PostgreSQL 16)\nPuerto: 5432\n• users\n• system_status")]
     end
 
     UserBrowser -->|HTTP :5173| Frontend
     UserBrowser -->|HTTP :8000| Backend
-    Frontend -->|API REST / Healthcheck| Backend
+    Frontend -->|API REST / Auth & Health| Backend
     Backend -->|SQLAlchemy / Pool| DB
 
     classDef default fill:#12161f,stroke:#2d3748,color:#f3f4f6;
@@ -102,9 +102,11 @@ Una vez levantados los servicios, los siguientes puntos de acceso estarán dispo
 
 | Servicio | URL Local | Descripción |
 | :--- | :--- | :--- |
-| **Frontend** | [http://localhost:5173](http://localhost:5173) | Interfaz gráfica interactiva en React + Vite (Monitor de salud del sistema) |
+| **Frontend** | [http://localhost:5173](http://localhost:5173) | Interfaz gráfica interactiva en React + Vite (Login, Registro, Menú Principal y Dashboard) |
 | **Backend API** | [http://localhost:8000](http://localhost:8000) | Raíz del servicio REST en FastAPI |
 | **Health Check API** | [http://localhost:8000/api/health](http://localhost:8000/api/health) | Endpoint JSON de verificación de estado y conexión a BD |
+| **Autenticación (Login)** | [http://localhost:8000/api/auth/login](http://localhost:8000/api/auth/login) | Endpoint POST para inicio de sesión con hash bcrypt |
+| **Autenticación (Registro)** | [http://localhost:8000/api/auth/register](http://localhost:8000/api/auth/register) | Endpoint POST para registro de usuarios |
 | **Swagger UI** | [http://localhost:8000/docs](http://localhost:8000/docs) | Documentación interactiva OpenAPI/Swagger de FastAPI |
 | **ReDoc** | [http://localhost:8000/redoc](http://localhost:8000/redoc) | Documentación alternativa de la API |
 | **Base de Datos** | `localhost:5432` | Instancia de PostgreSQL 16 accesible para clientes externos (DBeaver, pgAdmin, etc.) |
@@ -115,32 +117,50 @@ Una vez levantados los servicios, los siguientes puntos de acceso estarán dispo
 
 ```
 VORTEX/
-├── .env.example             # Plantilla de variables de entorno del proyecto
-├── .env                     # Variables de entorno locales (ignorado en git)
-├── .gitignore               # Exclusiones de Git para Python, Node, Docker y SO
-├── docker-compose.yml       # Orquestador multi-contenedor (db, backend, frontend)
-├── README.md                # Documentación del proyecto
+├── .env.example                 # Plantilla de variables de entorno del proyecto
+├── .env                         # Variables de entorno locales (ignorado en git)
+├── .gitignore                   # Exclusiones de Git para Python, Node, Docker y SO
+├── docker-compose.yml           # Orquestador multi-contenedor (db, backend, frontend)
+├── README.md                    # Documentación del proyecto
 │
-├── backend/                 # Servicio API REST (Python / FastAPI)
-│   ├── database.py          # Configuración de SQLAlchemy y validación de conexión a BD
-│   ├── Dockerfile           # Imagen Docker basada en python:3.11-slim
-│   ├── .dockerignore        # Exclusiones de compilación de imagen
-│   ├── main.py              # Aplicación FastAPI, configuración CORS y ruta /api/health
-│   └── requirements.txt     # Dependencias del backend (FastAPI, Uvicorn, SQLAlchemy, psycopg2)
+├── Mockups/                     # Recursos visuales y especificaciones de diseño UI
+│   ├── Paleta de color.txt      # Paleta cromática oficial (#D2A2F2, #5317A6, #161459, #2E338C, #5CF2F2)
+│   └── Imagenes UI/             # Mockups conceptuales del videojuego
+│       ├── 1 Login.png          # Mockup 1: Portal HUD circular de inicio de sesión
+│       ├── 2 Registro.png       # Mockup 2: Formulario de registro de usuario
+│       └── 3 Menu.png           # Mockup 3: Menú Principal dividido (Split-Screen)
 │
-├── database/                # Inicialización y esquemas de base de datos
-│   └── init.sql             # Script SQL ejecutado automáticamente en el primer arranque de Postgres
+├── backend/                     # Servicio API REST (Python / FastAPI)
+│   ├── auth.py                  # Router de autenticación (Login, Registro, hash bcrypt, JWT/Bearer)
+│   ├── database.py              # Configuración de SQLAlchemy y pool de conexión a PostgreSQL
+│   ├── Dockerfile               # Imagen Docker basada en python:3.11-slim
+│   ├── .dockerignore            # Exclusiones de compilación de imagen
+│   ├── main.py                  # Aplicación FastAPI, configuración CORS, routers y /api/health
+│   ├── models.py                # Modelos ORM de SQLAlchemy (tabla users)
+│   └── requirements.txt         # Dependencias del backend (FastAPI, Uvicorn, SQLAlchemy, bcrypt, etc.)
 │
-└── frontend/                # Interfaz de usuario (React / Vite)
-    ├── Dockerfile           # Imagen Docker basada en node:20-alpine
-    ├── .dockerignore        # Exclusiones de compilación de imagen
-    ├── index.html           # Plantilla base HTML con fuentes Outfit & JetBrains Mono
-    ├── package.json         # Dependencias y scripts de Node.js
-    ├── vite.config.js       # Configuración del servidor Vite (host 0.0.0.0, strictPort, polling)
+├── database/                    # Inicialización y esquemas de base de datos
+│   └── init.sql                 # Script SQL para tablas system_status y users
+│
+└── frontend/                    # Interfaz de usuario (React 18 / Vite 5)
+    ├── Dockerfile               # Imagen Docker basada en node:20-alpine
+    ├── .dockerignore            # Exclusiones de compilación de imagen
+    ├── index.html               # Plantilla base HTML con fuentes Outfit & JetBrains Mono
+    ├── package.json             # Dependencias y scripts de Node.js
+    ├── vite.config.js           # Configuración del servidor Vite (host 0.0.0.0, strictPort, polling)
     └── src/
-        ├── App.jsx          # Componente principal con diagnóstico visual y consumo de /api/health
-        ├── index.css        # Estilos modernos temáticos oscuros con efectos de resplandor
-        └── main.jsx         # Punto de montaje React DOM
+        ├── App.jsx              # Enrutador de vistas (login, register, menu, dashboard) y estado de sesión
+        ├── index.css            # Variables CSS globales, paleta temática y resets
+        ├── main.jsx             # Punto de montaje React DOM
+        └── components/          # Componentes modulares de interfaz
+            ├── Login.jsx                 # Vista 1: Portal circular HUD de inicio de sesión
+            ├── Login.css                 # Estilos y animaciones del portal de login
+            ├── Register.jsx              # Vista 2: Formulario de registro y validación
+            ├── Register.css              # Estilos del formulario de registro
+            ├── MainMenu.jsx              # Vista 3: Menú Principal Split-Screen (Arte HUD + Opciones)
+            ├── MainMenu.css              # Estilos, efectos hover y responsividad del menú
+            ├── DashboardPlaceholder.jsx  # Vista 4: Centro de control post-login y estado de conexión
+            └── DashboardPlaceholder.css  # Estilos del panel de control
 ```
 
 ---

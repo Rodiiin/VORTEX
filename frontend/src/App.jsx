@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Register from './components/Register';
+import MainMenu from './components/MainMenu';
 import DashboardPlaceholder from './components/DashboardPlaceholder';
 
 export default function App() {
-  // Estado de vista de la aplicación: 'login' | 'register' | 'dashboard'
+  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'dashboard'
   const [currentView, setCurrentView] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -16,19 +17,19 @@ export default function App() {
       try {
         const userObj = savedUser ? JSON.parse(savedUser) : { username: 'Piloto VORTEX' };
         setCurrentUser(userObj);
-        setCurrentView('dashboard');
+        setCurrentView('menu');
       } catch {
         setCurrentUser({ username: 'Piloto VORTEX' });
-        setCurrentView('dashboard');
+        setCurrentView('menu');
       }
     }
   }, []);
 
-  // Manejador de inicio de sesión exitoso
+  // Manejador de inicio de sesión exitoso (redirige directamente al Menú Principal)
   const handleLoginSuccess = (loginData) => {
     const user = loginData?.user || { username: loginData?.username || 'Piloto VORTEX' };
     setCurrentUser(user);
-    setCurrentView('dashboard');
+    setCurrentView('menu');
   };
 
   // Manejador de cierre de sesión
@@ -57,7 +58,16 @@ export default function App() {
         />
       )}
 
-      {/* VISTA 3: PLACEHOLDER POST-LOGIN / DASHBOARD */}
+      {/* VISTA 3: MENÚ PRINCIPAL (POST-LOGIN VORTEX) */}
+      {currentView === 'menu' && (
+        <MainMenu
+          user={currentUser}
+          onSettings={() => console.log('Ajustes seleccionados')}
+          onExit={handleLogout}
+        />
+      )}
+
+      {/* VISTA 4: CENTRO DE CONTROL / DASHBOARD DE ENTRENAMIENTO */}
       {currentView === 'dashboard' && (
         <DashboardPlaceholder
           user={currentUser}
