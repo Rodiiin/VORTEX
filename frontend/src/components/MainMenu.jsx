@@ -190,10 +190,10 @@ export default function MainMenu({
       <footer className="vortex-brand-corner">
         <div className="brand-system-badge">
           <span className="brand-badge-dot" aria-hidden="true" />
-          <span>MOTOR BIOMECÁNICO ACTIVO</span>
+          <span></span>
         </div>
         <h1 className="vortex-main-title">VORTEX</h1>
-        <p className="vortex-subtitle">ENTRENAMIENTO POR VISIÓN ARTIFICIAL</p>
+        <p className="vortex-subtitle"></p>
       </footer>
     </div>
   );
