@@ -286,6 +286,16 @@
   white-space: nowrap;
 }
 
+.btn-main-label-split {
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.btn-text-split {
+  display: inline-block;
+  line-height: 1.25;
+}
+
 .btn-arrow-icon {
   color: var(--vx-color-neon);
   font-size: 1.1rem;

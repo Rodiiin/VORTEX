@@ -95,8 +95,10 @@ export default function MainMenu({
           aria-label="Nueva Partida o Continuar Partida"
         >
           <span className="btn-hud-tag">01 // MISIÓN</span>
-          <span className="btn-main-label">
-            <span>Nueva Partida / Continuar Partida</span>
+          <span className="btn-main-label btn-main-label-split">
+            <span className="btn-text-split">
+              Nueva Partida /<br />Continuar Partida
+            </span>
             <span className="btn-arrow-icon" aria-hidden="true">▸</span>
           </span>
         </button>

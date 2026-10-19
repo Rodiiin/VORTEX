@@ -4,10 +4,9 @@ import Register from './components/Register';
 import MainMenu from './components/MainMenu';
 import Calibration from './components/Calibration';
 import GameEngine from './components/GameEngine';
-import DashboardPlaceholder from './components/DashboardPlaceholder';
 
 export default function App() {
-  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'calibration' | 'game' | 'dashboard'
+  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'calibration' | 'game'
   const [currentView, setCurrentView] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
   const [calibrationData, setCalibrationData] = useState(null);
@@ -88,14 +87,6 @@ export default function App() {
         <GameEngine
           calibrationData={calibrationData}
           onBackToMenu={() => setCurrentView('menu')}
-        />
-      )}
-
-      {/* VISTA 6: CENTRO DE CONTROL / DASHBOARD DE ENTRENAMIENTO */}
-      {currentView === 'dashboard' && (
-        <DashboardPlaceholder
-          user={currentUser}
-          onLogout={handleLogout}
         />
       )}
     </main>
