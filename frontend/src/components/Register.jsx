@@ -221,7 +221,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                     name="username"
                     type="text"
                     className="cyber-input"
-                    placeholder="Ingresa tu nombre de usuario..."
+                    placeholder="Ingresa un nombre de usuario"
                     value={username}
                     onChange={handleInputChange(setUsername)}
                     onFocus={() => setFocusedField('username')}
@@ -286,7 +286,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     className="cyber-input"
-                    placeholder="Mínimo 6 caracteres..."
+                    placeholder="Mínimo 6 caracteres"
                     value={password}
                     onChange={handleInputChange(setPassword)}
                     onFocus={() => setFocusedField('password')}
@@ -339,7 +339,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                     name="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     className="cyber-input"
-                    placeholder="Repite tu contraseña..."
+                    placeholder="Repite la contraseña"
                     value={confirmPassword}
                     onChange={handleInputChange(setConfirmPassword)}
                     onFocus={() => setFocusedField('confirmPassword')}

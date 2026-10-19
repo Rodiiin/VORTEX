@@ -1,35 +1,528 @@
 /* ==========================================================================
-   VORTEX - CIRCULAR HUD PORTAL LOGIN COMPONENT STYLES
-   Color Palette:
-     - #D2A2F2 (Neon Lilac Glow)
-     - #5317A6 (Electric Deep Purple)
-     - #161459 (Abyssal Cosmic Blue)
-     - #2E338C (Cyber Indigo / Royal Slate)
-     - #5CF2F2 (Electric Cyber Cyan Highlight)
+   VORTEX - CIRCULAR HUD PORTAL LOGIN COMPONENT STYLES ("Login.css")
+   Diseño de HUD Biomecánico basado en Mockups/Imagenes UI/iniciar sesion.png
+   Paleta de Color Oficial (Mockups/Paleta de color.txt):
+     - #1B1D26 (Fondo Oscuro / Superficie base)
+     - #B6F532 (Verde Lima Neón de Acento)
+     - #F3F3EE (Blanco Roto / Texto principal)
+     - #B0B7F5 (Lavanda Suave / Texto secundario y bordes)
+     - #262149 (Índigo Oscuro / Fondo de tarjetas de opciones)
+     - #6554D9 (Púrpura / Violeta Eléctrico)
    ========================================================================== */
 
 :root {
-  --vx-lilac: #D2A2F2;
-  --vx-purple: #5317A6;
-  --vx-deep-blue: #161459;
-  --vx-indigo: #2E338C;
-  --vx-cyan: #5CF2F2;
-  
-  --vx-card-bg: rgba(22, 20, 89, 0.9);
-  --vx-card-border: rgba(92, 242, 242, 0.55);
-  --vx-input-bg: rgba(14, 12, 45, 0.85);
-  --vx-input-border: rgba(46, 51, 140, 0.9);
-  --vx-text-main: #f5f6fa;
-  --vx-text-muted: #c2c8f0;
+  --vx-color-bg: #1B1D26;
+  --vx-color-neon: #B6F532;
+  --vx-color-white: #F3F3EE;
+  --vx-color-lavender: #B0B7F5;
+  --vx-color-indigo: #262149;
+  --vx-color-purple: #6554D9;
+
+  /* Resplandores y auras neón */
+  --vx-neon-glow: rgba(182, 245, 50, 0.45);
+  --vx-neon-subtle: rgba(182, 245, 50, 0.16);
   --vx-danger: #ff3366;
-  --vx-danger-bg: rgba(255, 51, 102, 0.18);
+  --vx-danger-bg: rgba(255, 51, 102, 0.16);
   --vx-danger-border: rgba(255, 51, 102, 0.65);
-  --vx-success: #00ffaa;
-  --vx-success-bg: rgba(0, 255, 170, 0.18);
-  --vx-success-border: rgba(0, 255, 170, 0.65);
+
+  --vx-font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --vx-font-mono: 'JetBrains Mono', 'Courier New', monospace;
 }
 
-/* Full-Screen Container Wrapper - Rich colors across the entire viewport */
+/* ==========================================================================
+   1. CONTENEDOR PRINCIPAL A PANTALLA COMPLETA (FONDO OSCURO)
+   ========================================================================== */
+.vortex-login-container {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: clamp(1rem, 2.5vh, 2.5rem) 1rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  user-select: none;
+  font-family: var(--vx-font-main);
+  background-color: var(--vx-color-bg);
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(38, 33, 73, 0.45) 0%, rgba(27, 29, 38, 0.95) 68%, #0d0e14 100%),
+    radial-gradient(circle at 50% 20%, rgba(182, 245, 50, 0.05) 0%, transparent 45%),
+    linear-gradient(180deg, #12131b 0%, #1B1D26 50%, #0d0e14 100%);
+  background-attachment: fixed;
+  color: var(--vx-color-white);
+}
+
+/* Viñeta ambiental y gradiente radial decorativo */
+.login-vignette-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at 50% 50%, transparent 40%, rgba(13, 14, 20, 0.7) 100%),
+    linear-gradient(180deg, rgba(13, 14, 20, 0.4) 0%, transparent 25%, transparent 75%, rgba(13, 14, 20, 0.6) 100%);
+  z-index: 1;
+}
+
+.login-ambient-glow {
+  position: absolute;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(182, 245, 50, 0.08) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 1;
+  animation: pulseAmbient 8s ease-in-out infinite alternate;
+}
+
+@keyframes pulseAmbient {
+  0% { transform: scale(0.92); opacity: 0.5; }
+  100% { transform: scale(1.08); opacity: 0.85; }
+}
+
+/* ==========================================================================
+   3. ADICIONES: TÍTULO SUPERIOR "VORTEX" CON EFECTO DE BRILLO NEÓN
+   ========================================================================== */
+.vortex-login-top-header {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  margin-bottom: clamp(1rem, 2vh, 1.8rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.vortex-main-brand-title {
+  margin: 0;
+  font-family: var(--vx-font-main);
+  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--vx-color-white);
+  text-shadow: 
+    0 0 12px var(--vx-color-neon),
+    0 0 28px rgba(182, 245, 50, 0.65),
+    0 0 55px rgba(182, 245, 50, 0.35),
+    0 4px 18px rgba(0, 0, 0, 0.9);
+  transition: text-shadow 0.3s ease;
+}
+
+.vortex-main-brand-title:hover {
+  text-shadow: 
+    0 0 16px var(--vx-color-neon),
+    0 0 38px rgba(182, 245, 50, 0.85),
+    0 0 70px rgba(182, 245, 50, 0.5),
+    0 4px 22px rgba(0, 0, 0, 0.95);
+}
+
+.vortex-system-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--vx-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--vx-color-neon);
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+.vortex-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--vx-color-neon);
+  box-shadow: 0 0 8px var(--vx-color-neon);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.8); opacity: 0.45; }
+}
+
+/* ==========================================================================
+   1. ESTRUCTURA CIRCULAR (HUD CSS CONCÉNTRICO)
+   ========================================================================== */
+.vortex-hud-system {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(320px, 66vmin, 560px);
+  height: clamp(320px, 66vmin, 560px);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+/* Círculo exterior con borde punteado (dashed) y rotación continua sutil */
+.vortex-circle-outer-dashed {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed var(--vx-color-neon);
+  box-shadow: 
+    0 0 25px rgba(182, 245, 50, 0.28),
+    inset 0 0 25px rgba(182, 245, 50, 0.14);
+  pointer-events: none;
+  transform-origin: center center;
+  animation: rotateDashedHUD 60s linear infinite;
+}
+
+@keyframes rotateDashedHUD {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Círculo interior con borde sólido (estático para perfecta lectura) */
+.vortex-circle-inner-solid {
+  position: relative;
+  width: 74%;
+  height: 74%;
+  border-radius: 50%;
+  border: 2px solid var(--vx-color-neon);
+  background: radial-gradient(
+    circle at 50% 50%, 
+    rgba(38, 33, 73, 0.88) 0%, 
+    rgba(27, 29, 38, 0.96) 74%, 
+    rgba(14, 15, 22, 0.99) 100%
+  );
+  box-shadow: 
+    0 0 35px rgba(182, 245, 50, 0.25),
+    inset 0 0 30px rgba(182, 245, 50, 0.12),
+    0 20px 50px rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
+  z-index: 5;
+}
+
+/* Área segura de contenido dentro del círculo interior */
+.vortex-hud-form-area {
+  width: 82%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   2. CONTENIDO CENTRAL (FORMULARIO Y TIPOGRAFÍA)
+   ========================================================================== */
+.vortex-hud-login-title {
+  margin: 0 0 clamp(0.75rem, 1.8vh, 1.25rem) 0;
+  font-family: var(--vx-font-mono);
+  font-size: clamp(1.3rem, 2.3vw, 1.7rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--vx-color-white);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Formulario minimalista */
+.vortex-hud-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.4vh, 1.1rem);
+}
+
+.vortex-minimal-field {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  position: relative;
+  width: 100%;
+}
+
+.vortex-minimal-label {
+  font-family: var(--vx-font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--vx-color-white);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+  padding-left: 2px;
+}
+
+.vortex-minimal-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(182, 245, 50, 0.38);
+  border-radius: 0;
+  padding: 0.45rem 0.25rem;
+  color: var(--vx-color-white);
+  font-family: var(--vx-font-mono);
+  font-size: 0.92rem;
+  outline: none;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+.vortex-minimal-input::placeholder {
+  color: rgba(176, 183, 245, 0.45);
+  font-size: 0.82rem;
+}
+
+.vortex-minimal-input:focus {
+  border-bottom-color: var(--vx-color-neon);
+  box-shadow: 0 2px 10px rgba(182, 245, 50, 0.4);
+}
+
+.vortex-minimal-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Fila de Contraseña con Botón Toggle discreto */
+.vortex-password-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.vortex-password-input {
+  padding-right: 2rem;
+}
+
+.vortex-password-toggle-btn {
+  position: absolute;
+  right: 2px;
+  bottom: 6px;
+  background: transparent;
+  border: none;
+  color: var(--vx-color-neon);
+  opacity: 0.75;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.vortex-password-toggle-btn:hover:not(:disabled) {
+  opacity: 1;
+  transform: scale(1.12);
+}
+
+.vortex-password-toggle-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+/* Botón de Envío del Formulario (HUD Neón) */
+.vortex-hud-submit-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.68rem 1.2rem;
+  background: transparent;
+  border: 1.5px solid var(--vx-color-neon);
+  border-radius: 6px;
+  color: var(--vx-color-neon);
+  font-family: var(--vx-font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  box-shadow: 
+    0 0 14px rgba(182, 245, 50, 0.2),
+    inset 0 0 10px rgba(182, 245, 50, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.vortex-hud-submit-btn:hover:not(:disabled) {
+  background: var(--vx-color-neon);
+  color: #12131b;
+  box-shadow: 
+    0 0 25px rgba(182, 245, 50, 0.65),
+    0 0 45px rgba(182, 245, 50, 0.35);
+  transform: translateY(-1px);
+}
+
+.vortex-hud-submit-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 0 12px rgba(182, 245, 50, 0.4);
+}
+
+.vortex-hud-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vortex-hud-submit-btn.is-loading {
+  border-color: rgba(182, 245, 50, 0.6);
+  color: var(--vx-color-neon);
+  background: rgba(182, 245, 50, 0.08);
+}
+
+/* Spinner animado */
+.vortex-hud-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(182, 245, 50, 0.3);
+  border-top-color: var(--vx-color-neon);
+  border-radius: 50%;
+  animation: hudSpin 0.75s linear infinite;
+}
+
+@keyframes hudSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Alertas de Error y Éxito */
+.vortex-hud-alert {
+  width: 100%;
+  font-family: var(--vx-font-mono);
+  font-size: 0.74rem;
+  line-height: 1.3;
+  padding: 0.4rem 0.65rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  box-sizing: border-box;
+  animation: alertFadeIn 0.25s ease-out;
+}
+
+.vortex-hud-alert-error {
+  color: #ff8fa5;
+  background: var(--vx-danger-bg);
+  border: 1px solid var(--vx-danger-border);
+  box-shadow: 0 0 12px rgba(255, 51, 102, 0.3);
+}
+
+.vortex-hud-alert-success {
+  color: #12131b;
+  background: var(--vx-color-neon);
+  border: 1px solid var(--vx-color-neon);
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(182, 245, 50, 0.5);
+}
+
+@keyframes alertFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   3. ADICIONES: OPCIÓN DE REGISTRO DISCRETA EN LA PARTE INFERIOR
+   ========================================================================== */
+.vortex-bottom-register {
+  position: relative;
+  z-index: 10;
+  margin-top: clamp(1rem, 2.5vh, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--vx-font-mono);
+  font-size: 0.85rem;
+  color: var(--vx-color-lavender);
+}
+
+.vortex-register-text {
+  opacity: 0.9;
+}
+
+.vortex-register-link-btn {
+  background: transparent;
+  border: none;
+  color: var(--vx-color-neon);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(182, 245, 50, 0.45);
+  transition: all 0.2s ease;
+}
+
+.vortex-register-link-btn:hover {
+  color: #FFFFFF;
+  text-shadow: 0 0 10px var(--vx-color-neon);
+  text-decoration-color: var(--vx-color-neon);
+}
+
+.vortex-register-link-btn:focus-visible {
+  outline: 2px solid var(--vx-color-neon);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   RESPONSIVIDAD Y ADAPTACIÓN EN DISPOSITIVOS MÓVILES
+   ========================================================================== */
+@media (max-width: 520px) {
+  .vortex-hud-system {
+    width: 90vw;
+    height: 90vw;
+  }
+
+  .vortex-circle-inner-solid {
+    width: 80%;
+    height: 80%;
+    padding: 0.85rem;
+  }
+
+  .vortex-hud-form-area {
+    width: 88%;
+    max-width: 270px;
+  }
+
+  .vortex-hud-login-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .vortex-minimal-input {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.2rem;
+  }
+
+  .vortex-hud-submit-btn {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.82rem;
+  }
+
+  .vortex-main-brand-title {
+    font-size: 2.3rem;
+  }
+}
+
+/* ==========================================================================
+   CLASES DE COMPATIBILIDAD CON Register.jsx
+   ========================================================================== */
 .vortex-login-wrapper {
   position: relative;
   width: 100vw;
@@ -41,100 +534,42 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  /* Full page vibrant multi-gradient using the entire project palette */
-  background-color: var(--vx-deep-blue);
+  font-family: var(--vx-font-main);
+  background-color: var(--vx-color-bg);
   background-image: 
-    radial-gradient(circle at 12% 18%, rgba(92, 242, 242, 0.28) 0%, transparent 45%),
-    radial-gradient(circle at 88% 18%, rgba(210, 162, 242, 0.3) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(83, 23, 166, 0.5) 0%, transparent 65%),
-    radial-gradient(circle at 10% 85%, rgba(46, 51, 140, 0.75) 0%, transparent 55%),
-    radial-gradient(circle at 90% 85%, rgba(83, 23, 166, 0.65) 0%, transparent 55%),
-    linear-gradient(135deg, #161459 0%, #2E338C 45%, #5317A6 80%, #161459 100%);
-  background-attachment: fixed;
+    radial-gradient(circle at 50% 50%, rgba(38, 33, 73, 0.45) 0%, rgba(27, 29, 38, 0.95) 68%, #0d0e14 100%),
+    linear-gradient(180deg, #12131b 0%, #1B1D26 50%, #0d0e14 100%);
 }
 
-/* Cyber Grid Overlay */
 .cyber-grid-overlay {
   position: absolute;
   inset: 0;
   background-size: 44px 44px;
   background-image: 
-    linear-gradient(to right, rgba(92, 242, 242, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(210, 162, 242, 0.08) 1px, transparent 1px);
+    linear-gradient(to right, rgba(182, 245, 50, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(182, 245, 50, 0.06) 1px, transparent 1px);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.85;
+  opacity: 0.7;
 }
 
-/* Ambient Floating Glow Orbs - Spread throughout the entire screen */
 .login-glow-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(110px);
+  filter: blur(100px);
   pointer-events: none;
   z-index: 0;
-  animation: pulseGlow 10s ease-in-out infinite alternate;
-}
-
-.login-glow-orb-top-left {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, var(--vx-cyan), var(--vx-indigo));
-  top: -150px;
-  left: -150px;
-  opacity: 0.45;
-}
-
-.login-glow-orb-top-right {
-  width: 550px;
-  height: 550px;
-  background: radial-gradient(circle, var(--vx-lilac), var(--vx-purple));
-  top: -180px;
-  right: -150px;
-  opacity: 0.45;
-  animation-delay: -3s;
-}
-
-.login-glow-orb-bottom-left {
-  width: 520px;
-  height: 520px;
-  background: radial-gradient(circle, var(--vx-indigo), var(--vx-purple));
-  bottom: -180px;
-  left: -120px;
-  opacity: 0.55;
-  animation-delay: -6s;
-}
-
-.login-glow-orb-bottom-right {
-  width: 560px;
-  height: 560px;
-  background: radial-gradient(circle, var(--vx-purple), var(--vx-cyan));
-  bottom: -180px;
-  right: -150px;
-  opacity: 0.5;
-  animation-delay: -4s;
 }
 
 .login-glow-orb-center {
-  width: 620px;
-  height: 620px;
-  background: radial-gradient(circle, rgba(83, 23, 166, 0.7), transparent 70%);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(182, 245, 50, 0.15), transparent 70%);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0.6;
 }
 
-@keyframes pulseGlow {
-  0% { transform: scale(0.95); opacity: 0.35; }
-  100% { transform: scale(1.1); opacity: 0.55; }
-}
-
-/* ==========================================================================
-   CIRCULAR PORTAL & HUD CONTAINER
-   ========================================================================== */
 .vortex-circle-portal {
   position: relative;
   z-index: 1;
@@ -146,84 +581,51 @@
   aspect-ratio: 1 / 1;
 }
 
-/* Outer Rotating Sci-Fi Ring */
 .portal-ring-outer {
   position: absolute;
-  inset: -16px;
+  inset: -14px;
   border-radius: 50%;
-  border: 2px dashed rgba(92, 242, 242, 0.4);
-  box-shadow: 0 0 25px rgba(92, 242, 242, 0.25);
-  animation: rotateClockwise 45s linear infinite;
+  border: 2px dashed var(--vx-color-neon);
+  box-shadow: 0 0 25px rgba(182, 245, 50, 0.25);
+  animation: rotateDashedHUD 60s linear infinite;
   pointer-events: none;
 }
 
-/* Middle Neon Glow Aura Ring */
 .portal-ring-middle {
   position: absolute;
-  inset: -8px;
+  inset: -6px;
   border-radius: 50%;
-  border: 1px solid rgba(210, 162, 242, 0.4);
-  box-shadow: 
-    0 0 35px rgba(83, 23, 166, 0.6),
-    inset 0 0 25px rgba(92, 242, 242, 0.2);
-  animation: rotateCounter 30s linear infinite;
+  border: 1px solid rgba(182, 245, 50, 0.35);
   pointer-events: none;
 }
 
 .portal-ring-glow {
   position: absolute;
-  inset: -2px;
+  inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, transparent 65%, rgba(92, 242, 242, 0.15) 100%);
+  background: radial-gradient(circle, transparent 65%, rgba(182, 245, 50, 0.1) 100%);
   pointer-events: none;
 }
 
-@keyframes rotateClockwise {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes rotateCounter {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
-
-/* Main Circular Card */
 .vortex-login-card-circle {
   position: relative;
   width: 100%;
   height: 100%;
   border-radius: 50%;
   aspect-ratio: 1 / 1;
-  background: radial-gradient(circle at 50% 30%, rgba(46, 51, 140, 0.88) 0%, rgba(22, 20, 89, 0.95) 75%, rgba(14, 12, 45, 0.98) 100%);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: 2px solid var(--vx-card-border);
+  background: radial-gradient(circle at 50% 50%, rgba(38, 33, 73, 0.9) 0%, rgba(27, 29, 38, 0.98) 75%, #0d0e14 100%);
+  border: 2px solid var(--vx-color-neon);
   box-shadow: 
-    0 25px 65px rgba(0, 0, 0, 0.7),
-    0 0 50px rgba(83, 23, 166, 0.65),
-    0 0 30px rgba(92, 242, 242, 0.45),
-    inset 0 0 45px rgba(83, 23, 166, 0.5),
-    inset 0 0 20px rgba(92, 242, 242, 0.25);
+    0 25px 65px rgba(0, 0, 0, 0.75),
+    0 0 35px rgba(182, 245, 50, 0.3),
+    inset 0 0 30px rgba(182, 245, 50, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   box-sizing: border-box;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.vortex-login-card-circle:hover {
-  border-color: var(--vx-cyan);
-  box-shadow: 
-    0 30px 80px rgba(0, 0, 0, 0.8),
-    0 0 65px rgba(83, 23, 166, 0.8),
-    0 0 45px rgba(92, 242, 242, 0.6),
-    inset 0 0 55px rgba(83, 23, 166, 0.6),
-    inset 0 0 25px rgba(92, 242, 242, 0.35);
-}
-
-/* Content Safe Area (Inscribed rectangle inside the circle) */
 .circle-content-safe-area {
   width: 82%;
   max-width: 360px;
@@ -236,242 +638,89 @@
   padding: 1rem 0;
 }
 
-/* Header */
 .login-header {
   text-align: center;
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.8rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .login-title {
-  font-size: 2.75rem;
+  font-size: 2.5rem;
   font-weight: 900;
-  letter-spacing: 0.12em;
-  line-height: 1.05;
+  letter-spacing: 0.15em;
   margin: 0;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #ffffff 0%, var(--vx-lilac) 45%, var(--vx-cyan) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 16px rgba(92, 242, 242, 0.4));
+  color: var(--vx-color-white);
+  text-shadow: 0 0 12px var(--vx-color-neon), 0 0 25px rgba(182, 245, 50, 0.5);
 }
 
 .login-subtitle {
-  margin-top: 0.3rem;
-  font-size: 1.05rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: var(--vx-lilac);
+  color: var(--vx-color-neon);
   text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-.login-subtitle::before,
-.login-subtitle::after {
-  content: '';
-  display: inline-block;
-  width: 20px;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent, var(--vx-lilac));
-}
-.login-subtitle::after {
-  background: linear-gradient(90deg, var(--vx-lilac), transparent);
-}
-
-/* Floating Notification / Error Alert */
-.login-alert {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 0.85rem;
-  border-radius: 8px;
-  font-size: 0.78rem;
-  line-height: 1.3;
-  box-sizing: border-box;
-  margin-bottom: 0.85rem;
-  animation: alertIn 0.25s ease-out;
-}
-
-.login-alert-error {
-  background: var(--vx-danger-bg);
-  border: 1px solid var(--vx-danger-border);
-  color: #ff8fa5;
-  box-shadow: 0 4px 14px rgba(255, 51, 102, 0.3);
-}
-
-.login-alert-success {
-  background: var(--vx-success-bg);
-  border: 1px solid var(--vx-success-border);
-  color: #6ee7b7;
-  box-shadow: 0 4px 14px rgba(0, 255, 170, 0.3);
-}
-
-.login-alert-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.login-alert-text {
-  flex: 1;
-  text-align: left;
-  font-weight: 500;
-}
-
-.login-alert-close {
-  background: none;
-  border: none;
-  color: inherit;
-  opacity: 0.7;
-  cursor: pointer;
-  padding: 2px 5px;
-  font-size: 0.9rem;
-  line-height: 1;
-}
-
-.login-alert-close:hover {
-  opacity: 1;
-}
-
-@keyframes alertIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Form Styles */
-.login-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  text-align: left;
-}
-
-.form-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--vx-text-main);
-  text-transform: uppercase;
-  padding-left: 2px;
-}
-
-/* Cyber Input Wrapper */
 .cyber-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  background: var(--vx-input-bg);
-  border: 1px solid var(--vx-input-border);
-  border-radius: 10px;
+  background: rgba(22, 20, 89, 0.4);
+  border: 1px solid rgba(182, 245, 50, 0.35);
+  border-radius: 8px;
   transition: all 0.2s ease;
   overflow: hidden;
 }
 
-.cyber-input-wrapper:hover:not(.is-disabled) {
-  border-color: rgba(92, 242, 242, 0.6);
-  box-shadow: 0 0 10px rgba(92, 242, 242, 0.2);
-}
-
 .cyber-input-wrapper.is-focused {
-  border-color: var(--vx-cyan);
-  background: rgba(22, 20, 89, 0.95);
-  box-shadow: 
-    0 0 0 1px var(--vx-cyan),
-    0 0 16px rgba(92, 242, 242, 0.4);
-}
-
-.cyber-input-wrapper.is-disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.cyber-input-wrapper.has-error {
-  border-color: var(--vx-danger);
-  box-shadow: 0 0 10px rgba(255, 51, 102, 0.4);
+  border-color: var(--vx-color-neon);
+  box-shadow: 0 0 12px rgba(182, 245, 50, 0.35);
 }
 
 .input-icon-left {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-left: 0.85rem;
-  color: var(--vx-lilac);
-  pointer-events: none;
-}
-
-.cyber-input-wrapper.is-focused .input-icon-left {
-  color: var(--vx-cyan);
+  padding-left: 0.75rem;
+  color: var(--vx-color-neon);
 }
 
 .cyber-input {
   width: 100%;
-  padding: 0.75rem 0.85rem 0.75rem 0.65rem;
+  padding: 0.7rem 0.8rem;
   background: transparent;
   border: none;
   outline: none;
-  color: var(--vx-text-main);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
+  color: var(--vx-color-white);
+  font-family: var(--vx-font-mono);
+  font-size: 0.88rem;
 }
 
-.cyber-input::placeholder {
-  color: rgba(194, 200, 240, 0.45);
-  font-size: 0.82rem;
-}
-
-.cyber-input:disabled {
-  cursor: not-allowed;
-}
-
-/* Password Toggle Button */
 .btn-password-toggle {
   background: transparent;
   border: none;
-  color: var(--vx-text-muted);
-  padding: 0.5rem 0.85rem;
+  color: var(--vx-color-neon);
+  padding: 0.5rem 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: color 0.2s, transform 0.15s;
 }
 
-.btn-password-toggle:hover:not(:disabled) {
-  color: var(--vx-cyan);
-  transform: scale(1.08);
-}
-
-.btn-password-toggle:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-/* Primary Submit Button */
 .btn-vortex-submit {
-  position: relative;
   width: 100%;
   margin-top: 0.4rem;
-  padding: 0.85rem 1.25rem;
-  background: linear-gradient(135deg, var(--vx-cyan) 0%, var(--vx-lilac) 50%, var(--vx-purple) 100%);
-  border: none;
-  border-radius: 10px;
-  color: #070716;
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.92rem;
+  padding: 0.8rem 1.2rem;
+  background: transparent;
+  border: 1.5px solid var(--vx-color-neon);
+  border-radius: 8px;
+  color: var(--vx-color-neon);
+  font-family: var(--vx-font-mono);
+  font-size: 0.9rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -480,77 +729,23 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  box-shadow: 
-    0 5px 18px rgba(92, 242, 242, 0.45),
-    0 0 20px rgba(83, 23, 166, 0.4);
-  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-  overflow: hidden;
-}
-
-.btn-vortex-submit::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: 0.5s;
-  pointer-events: none;
+  box-shadow: 0 0 14px rgba(182, 245, 50, 0.25);
+  transition: all 0.2s ease;
 }
 
 .btn-vortex-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 8px 25px rgba(92, 242, 242, 0.65),
-    0 0 35px rgba(210, 162, 242, 0.5);
+  background: var(--vx-color-neon);
+  color: #12131b;
+  box-shadow: 0 0 25px rgba(182, 245, 50, 0.6);
 }
 
-.btn-vortex-submit:hover:not(:disabled)::before {
-  left: 100%;
-}
-
-.btn-vortex-submit:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn-vortex-submit:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-vortex-submit.is-loading {
-  background: linear-gradient(135deg, var(--vx-indigo) 0%, var(--vx-purple) 100%);
-  color: var(--vx-cyan);
-  border: 1px solid rgba(92, 242, 242, 0.4);
-}
-
-/* Spinner */
 .vortex-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(7, 7, 22, 0.3);
-  border-top-color: #070716;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(182, 245, 50, 0.3);
+  border-top-color: var(--vx-color-neon);
   border-radius: 50%;
-  animation: vortexSpin 0.75s linear infinite;
-}
-
-.btn-vortex-submit.is-loading .vortex-spinner {
-  border-color: rgba(92, 242, 242, 0.25);
-  border-top-color: var(--vx-cyan);
-}
-
-@keyframes vortexSpin {
-  to { transform: rotate(360deg); }
-}
-
-/* Footer Link: ¿No tienes cuenta? Crear Cuenta */
-.login-footer {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.82rem;
-  color: var(--vx-text-muted);
+  animation: hudSpin 0.75s linear infinite;
 }
 
 .login-footer-text {
@@ -558,89 +753,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
   gap: 0.35rem;
+  font-family: var(--vx-font-mono);
 }
 
 .btn-link-register {
   background: transparent;
   border: none;
-  color: var(--vx-cyan);
+  color: var(--vx-color-neon);
   font-family: inherit;
   font-size: inherit;
   font-weight: 700;
-  letter-spacing: 0.02em;
   cursor: pointer;
-  padding: 0;
-  position: relative;
-  transition: color 0.2s ease, text-shadow 0.2s ease;
-  text-decoration: none;
-}
-
-.btn-link-register::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -2px;
-  width: 0%;
-  height: 2px;
-  background: var(--vx-cyan);
-  box-shadow: 0 0 8px var(--vx-cyan);
-  transition: width 0.25s ease;
-}
-
-.btn-link-register:hover {
-  color: #ffffff;
-  text-shadow: 0 0 10px var(--vx-cyan);
-}
-
-.btn-link-register:hover::after {
-  width: 100%;
-}
-
-.btn-link-register:focus-visible {
-  outline: 2px solid var(--vx-cyan);
-  outline-offset: 3px;
-  border-radius: 3px;
-}
-
-/* ==========================================================================
-   RESPONSIVE DESIGN FOR CIRCULAR PORTAL
-   ========================================================================== */
-@media (max-width: 520px) {
-  .vortex-circle-portal {
-    width: 95vw;
-    height: 95vw;
-  }
-
-  .circle-content-safe-area {
-    width: 86%;
-    max-width: 320px;
-  }
-
-  .login-title {
-    font-size: 2.2rem;
-  }
-
-  .login-subtitle {
-    font-size: 0.92rem;
-  }
-
-  .cyber-input {
-    padding: 0.65rem 0.75rem 0.65rem 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  .btn-vortex-submit {
-    padding: 0.75rem 1rem;
-    font-size: 0.85rem;
-  }
-
-  .portal-ring-outer {
-    inset: -8px;
-  }
-
-  .portal-ring-middle {
-    inset: -4px;
-  }
+  text-decoration: underline;
 }
