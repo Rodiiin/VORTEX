@@ -149,9 +149,11 @@ VORTEX/
     ├── package.json             # Dependencias y scripts de Node.js
     ├── vite.config.js           # Configuración del servidor Vite (host 0.0.0.0, strictPort, polling)
     └── src/
-        ├── App.jsx              # Enrutador de vistas (login, register, menu, dashboard) y estado de sesión
+        ├── App.jsx              # Enrutador de vistas (login, register, menu, calibration, game, dashboard)
         ├── index.css            # Variables CSS globales, paleta temática y resets
         ├── main.jsx             # Punto de montaje React DOM
+        ├── utils/               # Utilidades geométricas y visión artificial
+        │   └── poseMath.js      # Métricas de distancia/ángulos y renderizado de esqueleto en Canvas
         └── components/          # Componentes modulares de interfaz
             ├── Login.jsx                 # Vista 1: Portal circular HUD de inicio de sesión
             ├── Login.css                 # Estilos y animaciones del portal de login
@@ -159,7 +161,11 @@ VORTEX/
             ├── Register.css              # Estilos del formulario de registro
             ├── MainMenu.jsx              # Vista 3: Menú Principal Split-Screen (Arte HUD + Opciones)
             ├── MainMenu.css              # Estilos, efectos hover y responsividad del menú
-            ├── DashboardPlaceholder.jsx  # Vista 4: Centro de control post-login y estado de conexión
+            ├── Calibration.jsx           # Vista 4: Calibración de movimientos con MediaPipe Pose (Paso 0 a 4)
+            ├── Calibration.css           # Estilos e interfaz HUD de calibración biométrica
+            ├── GameEngine.jsx            # Vista 5: Motor de juego (Placeholder con esqueleto y telemetría en vivo)
+            ├── GameEngine.css            # Estilos del motor de combate
+            ├── DashboardPlaceholder.jsx  # Vista 6: Centro de control post-login y estado de conexión
             └── DashboardPlaceholder.css  # Estilos del panel de control
 ```
 

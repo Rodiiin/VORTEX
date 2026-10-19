@@ -1,0 +1,781 @@
+import React, { useState, useEffect, useRef } from 'react';
+import * as mpPose from '@mediapipe/pose';
+import * as mpCamera from '@mediapipe/camera_utils';
+import {
+  calculateDistance,
+  calculateAngle,
+  getTorsoCenter,
+  drawCyberSkeleton
+} from '../utils/poseMath';
+import './Calibration.css';
+
+// Resolución resiliente de constructores MediaPipe en entornos Vite / ESM
+const PoseConstructor = mpPose.Pose || (mpPose.default && mpPose.default.Pose) || window.Pose;
+const CameraConstructor = mpCamera.Camera || (mpCamera.default && mpCamera.default.Camera) || window.Camera;
+
+/**
+ * Componente de Calibración Biomecánica - VORTEX Exergame
+ *
+ * Arquitectura de ciclo de vida optimizada:
+ * - Inicialización única (useEffect []) para evitar la creación/destrucción repetida de contextos WebGL.
+ * - Variables de tiempo, fase y conteo gestionadas con useRef para evitar Stale Closures a 30 FPS.
+ * - Temporizador del Paso 1 basado en Date.now() independiente de re-renders de React.
+ * - Logs detallados por consola en cada paso para diagnóstico con F12.
+ */
+export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
+  // Estado visible en UI (renderizado de React)
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isUserPresent, setIsUserPresent] = useState(false);
+  const [calibratedParams, setCalibratedParams] = useState({
+    neutralTorso: null,
+    jab: { maxReach: 0, threshold: 0 },
+    hook: { elbowAngle: 0, lateralRange: 0 },
+    dodge: { maxLeanLeft: 0, maxLeanRight: 0, threshold: 0 }
+  });
+  const [liveMetrics, setLiveMetrics] = useState({
+    jabExtension: 0,
+    hookAngle: 0,
+    hookRange: 0,
+    dodgeDisplacement: 0,
+    progressPercent: 0,
+    countdownSeconds: 2.0
+  });
+
+  // =========================================================================
+  // GESTIÓN DE ESTADO MUTABLE CON USE_REF (A PRUEBA DE 30 FPS & STALE CLOSURES)
+  // =========================================================================
+  const stepRef = useRef(0);
+  const isUserPresentRef = useRef(false);
+  const isCapturingRef = useRef(false);
+  const lastUiUpdateRef = useRef(0);
+
+  // Parámetros calculados en tiempo real
+  const neutralTorsoRef = useRef(null);
+  const calibratedParamsRef = useRef({
+    neutralTorso: null,
+    jab: { maxReach: 0, threshold: 0 },
+    hook: { elbowAngle: 0, lateralRange: 0 },
+    dodge: { maxLeanLeft: 0, maxLeanRight: 0, threshold: 0 }
+  });
+
+  // Temporizador para Paso 1 (Posición Neutra) basado en Date.now()
+  const neutralTimerRef = useRef({
+    startTime: null,
+    samples: [],
+    lastLoggedSec: -1
+  });
+
+  // Buffer de mediciones para Jab, Hook y Dodge
+  const metricsBufferRef = useRef({
+    maxReach: 0,
+    bestHookAngle: 0,
+    maxHookRange: 0,
+    maxDodgeLeft: 0,
+    maxDodgeRight: 0
+  });
+
+  // Referencias a elementos DOM e instancias de MediaPipe
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const cameraInstanceRef = useRef(null);
+  const poseInstanceRef = useRef(null);
+
+  // Sincronizar stepRef con el cambio de paso desde UI
+  const setStep = (newStep) => {
+    console.log(`[VORTEX] Transición de paso: ${stepRef.current} -> ${newStep}`);
+    stepRef.current = newStep;
+    setCurrentStep(newStep);
+
+    // Reiniciar buffers al cambiar de paso
+    if (newStep === 1) {
+      isCapturingRef.current = true;
+      neutralTimerRef.current = { startTime: null, samples: [], lastLoggedSec: -1 };
+    } else if (newStep === 2) {
+      isCapturingRef.current = true;
+      metricsBufferRef.current.maxReach = 0;
+    } else if (newStep === 3) {
+      isCapturingRef.current = true;
+      metricsBufferRef.current.bestHookAngle = 0;
+      metricsBufferRef.current.maxHookRange = 0;
+    } else if (newStep === 4) {
+      isCapturingRef.current = true;
+      metricsBufferRef.current.maxDodgeLeft = 0;
+      metricsBufferRef.current.maxDodgeRight = 0;
+    } else {
+      isCapturingRef.current = false;
+    }
+  };
+
+  // =========================================================================
+  // CICLO DE VIDA: INICIALIZACIÓN ÚNICA DE MEDIAPIPE Y CÁMARA (DEPENDENCIAS [])
+  // =========================================================================
+  useEffect(() => {
+    let isMounted = true;
+    console.log('[VORTEX] 🟢 Montando Calibration. Inicializando MediaPipe Pose y Cámara una sola vez...');
+
+    const videoElement = videoRef.current;
+    const canvasElement = canvasRef.current;
+
+    if (!videoElement || !canvasElement) {
+      console.error('[VORTEX] ❌ Elementos video o canvas no disponibles.');
+      return;
+    }
+
+    const canvasCtx = canvasElement.getContext('2d');
+
+    // 1. Instanciar Pose con modelo 'lite' para 30 FPS óptimos
+    const pose = new PoseConstructor({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+    });
+
+    pose.setOptions({
+      modelComplexity: 0, // 'lite' model a 30 FPS
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      smoothSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    poseInstanceRef.current = pose;
+
+    // 2. Callback onResults ejecutado a 30 FPS
+    pose.onResults((results) => {
+      if (!isMounted || !canvasElement || !canvasCtx) return;
+
+      const { image, poseLandmarks } = results;
+      const width = canvasElement.width;
+      const height = canvasElement.height;
+
+      // Dibujar imagen de la cámara en canvas (modo espejo)
+      canvasCtx.clearRect(0, 0, width, height);
+      canvasCtx.save();
+      canvasCtx.drawImage(image, 0, 0, width, height);
+      canvasCtx.restore();
+
+      // =====================================================================
+      // PASO 0: DETECCIÓN DE PRESENCIA (Landmarks 11 y 12 visibles)
+      // =====================================================================
+      let detected = false;
+      if (poseLandmarks && poseLandmarks.length > 12) {
+        const leftShoulder = poseLandmarks[11];
+        const rightShoulder = poseLandmarks[12];
+        const leftVis = leftShoulder?.visibility ?? 0;
+        const rightVis = rightShoulder?.visibility ?? 0;
+
+        if (leftVis > 0.45 && rightVis > 0.45) {
+          detected = true;
+        }
+      }
+
+      // Actualizar estado de presencia sólo cuando cambie (evitar 30 re-renders/seg)
+      if (isUserPresentRef.current !== detected) {
+        isUserPresentRef.current = detected;
+        setIsUserPresent(detected);
+
+        if (detected) {
+          console.log('[VORTEX] Usuario detectado frente a la cámara.');
+        } else {
+          console.warn('[VORTEX] No se detecta usuario frente a la cámara.');
+        }
+      }
+
+      // Si no hay detección válida, detener cualquier contador activo
+      if (!detected || !poseLandmarks) {
+        if (stepRef.current === 1 && neutralTimerRef.current.startTime) {
+          console.warn('[VORTEX] ⏸️ Hombros no visibles. Pausando temporizador de Posición Neutra.');
+          neutralTimerRef.current.startTime = null;
+          neutralTimerRef.current.samples = [];
+          setLiveMetrics((prev) => ({ ...prev, countdownSeconds: 2.0, progressPercent: 0 }));
+        }
+        return;
+      }
+
+      // Calcular centro actual del torso
+      const currentTorso = getTorsoCenter(poseLandmarks);
+
+      // Dibujar esqueleto cibernético en tiempo real
+      drawCyberSkeleton(canvasCtx, poseLandmarks, width, height, {
+        showTorsoCenter: stepRef.current === 1,
+        torsoCenter: currentTorso,
+        neutralCenter: neutralTorsoRef.current
+      });
+
+      const now = Date.now();
+      const currentStepNum = stepRef.current;
+
+      // =====================================================================
+      // PASO 1: POSICIÓN NEUTRA (2 SEGUNDOS REALES CON DATE.NOW)
+      // =====================================================================
+      if (currentStepNum === 1 && isCapturingRef.current && currentTorso) {
+        const timer = neutralTimerRef.current;
+
+        if (!timer.startTime) {
+          timer.startTime = now;
+          timer.samples = [];
+          timer.lastLoggedSec = -1;
+          console.log('[VORTEX] Iniciando temporizador de Posición Neutra (2.0 segundos requeridos)...');
+        }
+
+        timer.samples.push(currentTorso);
+        const elapsedSec = (now - timer.startTime) / 1000;
+        const remaining = Math.max(0, 2.0 - elapsedSec);
+        const percent = Math.min(100, (elapsedSec / 2.0) * 100);
+
+        // Logging en consola cada 0.5s para monitoreo en F12
+        const currentHalfSec = Math.floor(elapsedSec * 2) / 2;
+        if (currentHalfSec !== timer.lastLoggedSec) {
+          console.log(`[VORTEX] Paso 1 - Posición Neutra: ${elapsedSec.toFixed(1)}s / 2.0s (${timer.samples.length} muestras recolectadas)`);
+          timer.lastLoggedSec = currentHalfSec;
+        }
+
+        // Actualizar UI throttled (~15 FPS)
+        if (now - lastUiUpdateRef.current > 66) {
+          lastUiUpdateRef.current = now;
+          setLiveMetrics((prev) => ({
+            ...prev,
+            countdownSeconds: Number(remaining.toFixed(1)),
+            progressPercent: percent
+          }));
+        }
+
+        // Al cumplirse los 2 segundos exactos
+        if (elapsedSec >= 2.0 && timer.samples.length >= 15) {
+          const samples = timer.samples;
+          const avgX = samples.reduce((acc, s) => acc + s.x, 0) / samples.length;
+          const avgY = samples.reduce((acc, s) => acc + s.y, 0) / samples.length;
+          const avgZ = samples.reduce((acc, s) => acc + s.z, 0) / samples.length;
+
+          const neutral = {
+            x: Number(avgX.toFixed(3)),
+            y: Number(avgY.toFixed(3)),
+            z: Number(avgZ.toFixed(3))
+          };
+
+          neutralTorsoRef.current = neutral;
+          calibratedParamsRef.current.neutralTorso = neutral;
+          setCalibratedParams((prev) => ({ ...prev, neutralTorso: neutral }));
+
+          console.log('[VORTEX] Paso 1 Completado Coordenadas base del torso:', neutral);
+          console.log('[VORTEX] Avanzando automáticamente al Paso 2: Calibración de Jab.');
+
+          setStep(2);
+        }
+      }
+
+      // =====================================================================
+      // PASO 2: CALIBRAR JAB (Extensión frontal hombro-muñeca)
+      // =====================================================================
+      if (currentStepNum === 2 && isCapturingRef.current) {
+        const leftReach = calculateDistance(poseLandmarks[11], poseLandmarks[15], true);
+        const rightReach = calculateDistance(poseLandmarks[12], poseLandmarks[16], true);
+        const currentReach = Math.max(leftReach, rightReach);
+
+        if (currentReach > metricsBufferRef.current.maxReach) {
+          metricsBufferRef.current.maxReach = currentReach;
+        }
+
+        if (now - lastUiUpdateRef.current > 66) {
+          lastUiUpdateRef.current = now;
+          const max = metricsBufferRef.current.maxReach;
+          setLiveMetrics((prev) => ({
+            ...prev,
+            jabExtension: Number(currentReach.toFixed(2)),
+            progressPercent: max > 0 ? Math.min(100, (currentReach / max) * 100) : 0
+          }));
+        }
+      }
+
+      // =====================================================================
+      // PASO 3: CALIBRAR GANCHO (Ángulo codo ~90° y rango lateral X)
+      // =====================================================================
+      if (currentStepNum === 3 && isCapturingRef.current) {
+        const leftAngle = calculateAngle(poseLandmarks[11], poseLandmarks[13], poseLandmarks[15]);
+        const rightAngle = calculateAngle(poseLandmarks[12], poseLandmarks[14], poseLandmarks[16]);
+        const leftRange = Math.abs(poseLandmarks[15].x - poseLandmarks[11].x);
+        const rightRange = Math.abs(poseLandmarks[16].x - poseLandmarks[12].x);
+
+        const activeAngle = leftRange > rightRange ? leftAngle : rightAngle;
+        const activeRange = Math.max(leftRange, rightRange);
+
+        if (activeAngle >= 65 && activeAngle <= 120 && activeRange > metricsBufferRef.current.maxHookRange) {
+          metricsBufferRef.current.bestHookAngle = activeAngle;
+          metricsBufferRef.current.maxHookRange = activeRange;
+        }
+
+        if (now - lastUiUpdateRef.current > 66) {
+          lastUiUpdateRef.current = now;
+          setLiveMetrics((prev) => ({
+            ...prev,
+            hookAngle: activeAngle,
+            hookRange: Number(activeRange.toFixed(2)),
+            progressPercent: Math.min(100, (activeRange / 0.4) * 100)
+          }));
+        }
+      }
+
+      // =====================================================================
+      // PASO 4: CALIBRAR ESQUIVA (Desplazamiento X lateral vs neutro)
+      // =====================================================================
+      if (currentStepNum === 4 && isCapturingRef.current && neutralTorsoRef.current && currentTorso) {
+        const deltaX = currentTorso.x - neutralTorsoRef.current.x;
+
+        if (deltaX < 0 && Math.abs(deltaX) > metricsBufferRef.current.maxDodgeLeft) {
+          metricsBufferRef.current.maxDodgeLeft = Math.abs(deltaX);
+        } else if (deltaX > 0 && deltaX > metricsBufferRef.current.maxDodgeRight) {
+          metricsBufferRef.current.maxDodgeRight = deltaX;
+        }
+
+        const currentDisp = Math.abs(deltaX);
+
+        if (now - lastUiUpdateRef.current > 66) {
+          lastUiUpdateRef.current = now;
+          setLiveMetrics((prev) => ({
+            ...prev,
+            dodgeDisplacement: Number(currentDisp.toFixed(3)),
+            progressPercent: Math.min(100, (currentDisp / 0.08) * 100)
+          }));
+        }
+      }
+    });
+
+    // 3. Iniciar cámara con MediaPipe Camera
+    const camera = new CameraConstructor(videoElement, {
+      onFrame: async () => {
+        if (isMounted && videoElement && videoElement.readyState >= 2) {
+          try {
+            await pose.send({ image: videoElement });
+          } catch (err) {
+            console.error('[VORTEX] Error al enviar frame a MediaPipe:', err);
+          }
+        }
+      },
+      width: 640,
+      height: 480,
+    });
+
+    cameraInstanceRef.current = camera;
+    camera.start().then(() => {
+      console.log('[VORTEX] Cámara conectada.');
+    }).catch((err) => {
+      console.error('[VORTEX] Error al iniciar cámara:', err);
+    });
+
+    // 4. Limpieza estricta sólo al desmontar el componente
+    return () => {
+      console.log('[VORTEX] Desmontando Calibration. Liberando WebGL y cámara...');
+      isMounted = false;
+      if (cameraInstanceRef.current) {
+        try { cameraInstanceRef.current.stop(); } catch (e) {}
+      }
+      if (poseInstanceRef.current) {
+        try { poseInstanceRef.current.close(); } catch (e) {}
+      }
+      if (videoElement && videoElement.srcObject) {
+        const stream = videoElement.srcObject;
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []); // <--- ARREGLO DE DEPENDENCIAS VACÍO: Garantiza inicialización única
+
+  // =========================================================================
+  // BOTONES Y CONFIRMACIONES DE CADA PASO
+  // =========================================================================
+  const handleConfirmJab = () => {
+    const max = metricsBufferRef.current.maxReach || liveMetrics.jabExtension || 0.45;
+    const threshold = Number((max * 0.8).toFixed(3));
+    const jabData = { maxReach: Number(max.toFixed(3)), threshold };
+
+    calibratedParamsRef.current.jab = jabData;
+    setCalibratedParams((prev) => ({ ...prev, jab: jabData }));
+
+    console.log(`[VORTEX] Paso 2 Completado. Jab calibrado -> Alcance Máx: ${max.toFixed(3)}, Umbral 80%: ${threshold}`);
+    setStep(3);
+  };
+
+  const handleConfirmHook = () => {
+    const angle = metricsBufferRef.current.bestHookAngle || liveMetrics.hookAngle || 88;
+    const range = metricsBufferRef.current.maxHookRange || liveMetrics.hookRange || 0.28;
+    const hookData = { elbowAngle: angle, lateralRange: Number(range.toFixed(3)) };
+
+    calibratedParamsRef.current.hook = hookData;
+    setCalibratedParams((prev) => ({ ...prev, hook: hookData }));
+
+    console.log(`[VORTEX] Paso 3 Completado. Gancho calibrado -> Ángulo Codo: ${angle}°, Rango X: ${range.toFixed(3)}`);
+    setStep(4);
+  };
+
+  const handleConfirmDodge = () => {
+    const left = metricsBufferRef.current.maxDodgeLeft || 0.07;
+    const right = metricsBufferRef.current.maxDodgeRight || 0.07;
+    const avg = (left + right) / 2;
+    const threshold = Number(Math.max(0.05, avg * 0.75).toFixed(3));
+    const dodgeData = {
+      maxLeanLeft: Number(left.toFixed(3)),
+      maxLeanRight: Number(right.toFixed(3)),
+      threshold
+    };
+
+    calibratedParamsRef.current.dodge = dodgeData;
+    setCalibratedParams((prev) => ({ ...prev, dodge: dodgeData }));
+
+    console.log(`[VORTEX] Paso 4 Completado. Esquiva calibrada -> Umbral Desplazamiento X: ${threshold}`);
+    console.log('[VORTEX] ¡Todos los pasos de calibración completados exitosamente!', calibratedParamsRef.current);
+    setStep(5);
+  };
+
+  const handleReadyToFight = () => {
+    console.log('[VORTEX] Navegando a GameEngine con los parámetros calibrados:', calibratedParamsRef.current);
+    if (typeof onCalibrationComplete === 'function') {
+      onCalibrationComplete(calibratedParamsRef.current);
+    }
+  };
+
+  return (
+    <div className="calibration-wrapper">
+      <div className="calibration-grid-bg" aria-hidden="true" />
+
+      <div className="calibration-container">
+        
+        {/* Barra superior con branding y botón Volver */}
+        <header className="calibration-topbar">
+          <div className="calibration-title-group">
+            <h1 className="calibration-logo">VORTEX</h1>
+            <span className="calibration-badge">Calibración Biomecánica</span>
+          </div>
+
+          <button
+            type="button"
+            className="btn-calib-back"
+            onClick={onBackToMenu}
+            aria-label="Volver al menú principal"
+          >
+            ← Volver al Menú
+          </button>
+        </header>
+
+        {/* Stepper visual de pasos */}
+        <nav className="calibration-stepper" aria-label="Progreso de calibración">
+          {[
+            { id: 0, label: 'Detección' },
+            { id: 1, label: 'Neutro' },
+            { id: 2, label: 'Jab' },
+            { id: 3, label: 'Gancho' },
+            { id: 4, label: 'Esquiva' },
+            { id: 5, label: '¡Listo!' },
+          ].map((st, idx) => (
+            <React.Fragment key={st.id}>
+              <div
+                className={`step-item ${currentStep === st.id ? 'is-active' : ''} ${
+                  currentStep > st.id ? 'is-completed' : ''
+                }`}
+              >
+                <span className="step-number">
+                  {currentStep > st.id ? '✓' : st.id}
+                </span>
+                <span className="step-label">{st.label}</span>
+              </div>
+              {idx < 5 && <div className="step-divider" aria-hidden="true" />}
+            </React.Fragment>
+          ))}
+        </nav>
+
+        {/* Grid Principal: Viewport de Cámara + Panel de Instrucciones */}
+        <main className="calibration-main-grid">
+          
+          {/* Viewport de Cámara con Canvas HUD */}
+          <div className="camera-viewport-card">
+            <span className="viewport-bracket vb-tl" aria-hidden="true" />
+            <span className="viewport-bracket vb-tr" aria-hidden="true" />
+            <span className="viewport-bracket vb-bl" aria-hidden="true" />
+            <span className="viewport-bracket vb-br" aria-hidden="true" />
+
+            <video
+              ref={videoRef}
+              className="camera-video-hidden"
+              playsInline
+              muted
+              autoPlay
+            />
+
+            <canvas
+              ref={canvasRef}
+              className="camera-canvas"
+              width={640}
+              height={480}
+            />
+
+            {/* Telemetría activa */}
+            <div className="camera-telemetry-badge">
+              <span className="telemetry-dot-live" />
+              <span>MEDIAPIPE POSE LITE • 30 FPS</span>
+            </div>
+
+            {/* Alerta de Presencia (Paso 0 o si no se detecta al usuario) */}
+            {!isUserPresent && (
+              <div className="presence-alert-overlay" role="alert">
+                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                <p className="presence-alert-text">
+                  No se detecta usuario frente a la cámara
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Panel Lateral de Control e Instrucciones */}
+          <section className="calibration-controls-card">
+            
+            {/* PASO 0: DETECCIÓN DE PRESENCIA */}
+            {currentStep === 0 && (
+              <>
+                <div className="step-info-header">
+                  <span className="step-tag-pill">Paso 0 de 4</span>
+                  <h2 className="step-title">Detección de Presencia</h2>
+                  <p className="step-instruction">
+                    Colócate frente a la cámara de forma que tus hombros y torso sean visibles. La IA confirmará tu posición para iniciar.
+                  </p>
+                </div>
+
+                <div className="step-metric-panel">
+                  <div className="metric-row">
+                    <span className="metric-label">Hombros detectados:</span>
+                    <span className="metric-value" style={{ color: isUserPresent ? '#00ffaa' : '#ff3366' }}>
+                      {isUserPresent ? 'VISIBLES (Hombro 11 & 12)' : 'NO DETECTADOS'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="calib-actions-group">
+                  <button
+                    type="button"
+                    className="btn-calib-action btn-calib-secondary"
+                    disabled={!isUserPresent}
+                    onClick={() => setStep(1)}
+                  >
+                    {isUserPresent ? 'Iniciar Calibración →' : 'Esperando Detección...'}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* PASO 1: POSICIÓN NEUTRA */}
+            {currentStep === 1 && (
+              <>
+                <div className="step-info-header">
+                  <span className="step-tag-pill">Paso 1 de 4</span>
+                  <h2 className="step-title">Posición Neutra</h2>
+                  <p className="step-instruction">
+                    Ponte en guardia relajada mirando al frente. El temporizador capturará automáticamente tu centro de gravedad durante 2 segundos.
+                  </p>
+                </div>
+
+                <div className="step-metric-panel">
+                  <div className="metric-row">
+                    <span className="metric-label">Tiempo restante:</span>
+                    <span className="metric-value">{liveMetrics.countdownSeconds}s</span>
+                  </div>
+                  <div className="calib-progress-bar-bg">
+                    <div
+                      className="calib-progress-bar-fill"
+                      style={{ width: `${liveMetrics.progressPercent}%` }}
+                    />
+                  </div>
+                  <div className="metric-row" style={{ marginTop: '0.25rem' }}>
+                    <span className="metric-label" style={{ fontSize: '0.78rem' }}>Estado del sensor:</span>
+                    <span className="metric-value" style={{ fontSize: '0.78rem', color: isUserPresent ? '#00ffaa' : '#ff3366' }}>
+                      {isUserPresent ? 'Muestreando en vivo...' : 'Pausado (esperando usuario)'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="calib-actions-group">
+                  <button
+                    type="button"
+                    className="btn-calib-action btn-calib-secondary"
+                    onClick={() => {
+                      neutralTimerRef.current = { startTime: null, samples: [], lastLoggedSec: -1 };
+                      isCapturingRef.current = true;
+                    }}
+                    disabled={!isUserPresent}
+                  >
+                    Reiniciar Contador (2s)
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* PASO 2: CALIBRAR JAB */}
+            {currentStep === 2 && (
+              <>
+                <div className="step-info-header">
+                  <span className="step-tag-pill">Paso 2 de 4</span>
+                  <h2 className="step-title">Calibrar Jab</h2>
+                  <p className="step-instruction">
+                    Extiende tu brazo frontal completamente hacia adelante (golpe recto Jab). Se guardará la distancia máxima y el umbral al 80%.
+                  </p>
+                </div>
+
+                <div className="step-metric-panel">
+                  <div className="metric-row">
+                    <span className="metric-label">Extensión Actual Hombro-Muñeca:</span>
+                    <span className="metric-value">{liveMetrics.jabExtension}</span>
+                  </div>
+                  <div className="metric-row">
+                    <span className="metric-label">Extensión Máxima Registrada:</span>
+                    <span className="metric-value">
+                      {metricsBufferRef.current.maxReach.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="calib-progress-bar-bg">
+                    <div
+                      className="calib-progress-bar-fill"
+                      style={{ width: `${liveMetrics.progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="calib-actions-group">
+                  <button
+                    type="button"
+                    className="btn-calib-action btn-calib-secondary"
+                    onClick={handleConfirmJab}
+                    disabled={metricsBufferRef.current.maxReach === 0}
+                  >
+                    Confirmar Extensión de Jab ✓
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* PASO 3: CALIBRAR GANCHO (HOOK) */}
+            {currentStep === 3 && (
+              <>
+                <div className="step-info-header">
+                  <span className="step-tag-pill">Paso 3 de 4</span>
+                  <h2 className="step-title">Calibrar Gancho (Hook)</h2>
+                  <p className="step-instruction">
+                    Ejecuta un Gancho circular manteniendo el codo flexionado (~90°). Registraremos el ángulo y tu rango lateral.
+                  </p>
+                </div>
+
+                <div className="step-metric-panel">
+                  <div className="metric-row">
+                    <span className="metric-label">Ángulo de Codo Actual:</span>
+                    <span className="metric-value">{liveMetrics.hookAngle}°</span>
+                  </div>
+                  <div className="metric-row">
+                    <span className="metric-label">Rango Lateral (X):</span>
+                    <span className="metric-value">{liveMetrics.hookRange}</span>
+                  </div>
+                  <div className="calib-progress-bar-bg">
+                    <div
+                      className="calib-progress-bar-fill"
+                      style={{ width: `${liveMetrics.progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="calib-actions-group">
+                  <button
+                    type="button"
+                    className="btn-calib-action btn-calib-secondary"
+                    onClick={handleConfirmHook}
+                  >
+                    Confirmar Gancho ✓
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* PASO 4: CALIBRAR ESQUIVA (DODGE) */}
+            {currentStep === 4 && (
+              <>
+                <div className="step-info-header">
+                  <span className="step-tag-pill">Paso 4 de 4</span>
+                  <h2 className="step-title">Calibrar Esquiva (Dodge)</h2>
+                  <p className="step-instruction">
+                    Inclina tu torso hacia la izquierda y luego hacia la derecha para registrar el umbral de desplazamiento lateral respecto al centro.
+                  </p>
+                </div>
+
+                <div className="step-metric-panel">
+                  <div className="metric-row">
+                    <span className="metric-label">Desplazamiento Lateral X:</span>
+                    <span className="metric-value">{liveMetrics.dodgeDisplacement}</span>
+                  </div>
+                  <div className="metric-row">
+                    <span className="metric-label">Máx Izquierda / Derecha:</span>
+                    <span className="metric-value">
+                      {metricsBufferRef.current.maxDodgeLeft.toFixed(2)} / {metricsBufferRef.current.maxDodgeRight.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="calib-progress-bar-bg">
+                    <div
+                      className="calib-progress-bar-fill"
+                      style={{ width: `${liveMetrics.progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="calib-actions-group">
+                  <button
+                    type="button"
+                    className="btn-calib-action btn-calib-secondary"
+                    onClick={handleConfirmDodge}
+                  >
+                    Confirmar Esquiva ✓
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* PASO 5: CALIBRACIÓN COMPLETADA */}
+            {currentStep === 5 && (
+              <>
+                <div className="step-info-header">
+                  <span className="step-tag-pill" style={{ color: '#00ffaa' }}>Calibración Lista</span>
+                  <h2 className="step-title">¡Perfil Biomecánico Creado!</h2>
+                  <p className="step-instruction">
+                    Tus movimientos y rangos fueron calculados exitosamente. Ahora tu juego estará optimizado a tu cuerpo.
+                  </p>
+                </div>
+
+                <div className="calib-summary-grid">
+                  <div className="summary-item-badge">
+                    <span className="summary-label">Umbral Jab (80%)</span>
+                    <span className="summary-val">{calibratedParams.jab.threshold}</span>
+                  </div>
+                  <div className="summary-item-badge">
+                    <span className="summary-label">Ángulo Gancho</span>
+                    <span className="summary-val">{calibratedParams.hook.elbowAngle}°</span>
+                  </div>
+                  <div className="summary-item-badge">
+                    <span className="summary-label">Rango Gancho X</span>
+                    <span className="summary-val">{calibratedParams.hook.lateralRange}</span>
+                  </div>
+                  <div className="summary-item-badge">
+                    <span className="summary-label">Umbral Esquiva X</span>
+                    <span className="summary-val">{calibratedParams.dodge.threshold}</span>
+                  </div>
+                </div>
+
+                <div className="calib-actions-group">
+                  <button
+                    type="button"
+                    className="btn-calib-action btn-ready-to-fight"
+                    onClick={handleReadyToFight}
+                  >
+                    ⚡ ¡Listo para Pelear!
+                  </button>
+                </div>
+              </>
+            )}
+
+          </section>
+
+        </main>
+
+      </div>
+    </div>
+  );
+}

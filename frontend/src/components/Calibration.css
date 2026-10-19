@@ -1,0 +1,524 @@
+/* ==========================================================================
+   VORTEX - CALIBRATION COMPONENT STYLES ("Calibration.css")
+   Tema: Visión Artificial + Exergame HUD Cyberpunk
+   Paleta: #D2A2F2, #5317A6, #161459, #2E338C, #5CF2F2, Alerta: #ff3366
+   ========================================================================== */
+
+:root {
+  --calib-cyan: #5CF2F2;
+  --calib-lilac: #D2A2F2;
+  --calib-purple: #5317A6;
+  --calib-indigo: #2E338C;
+  --calib-deep-blue: #161459;
+  --calib-red: #ff3366;
+  --calib-green: #00ffaa;
+  --calib-dark-bg: #090820;
+  --calib-panel-bg: rgba(14, 12, 45, 0.92);
+}
+
+.calibration-wrapper {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #f3f4f6;
+  background-color: var(--calib-deep-blue);
+  background-image: 
+    radial-gradient(circle at 10% 15%, rgba(92, 242, 242, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 90% 15%, rgba(210, 162, 242, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(83, 23, 166, 0.45) 0%, transparent 70%),
+    linear-gradient(135deg, #090820 0%, #161459 40%, #2E338C 70%, #090820 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* Rejilla de fondo */
+.calibration-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(92, 242, 242, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(210, 162, 242, 0.05) 1px, transparent 1px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Contenedor principal de calibración */
+.calibration-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1280px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Header superior con título y botón de regreso */
+.calibration-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 0.5rem 0.75rem 0.5rem;
+  border-bottom: 1px solid rgba(92, 242, 242, 0.2);
+}
+
+.calibration-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calibration-logo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #ffffff 30%, var(--calib-cyan) 80%, var(--calib-lilac) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+}
+
+.calibration-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--calib-cyan);
+  background: rgba(92, 242, 242, 0.12);
+  border: 1px solid rgba(92, 242, 242, 0.4);
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.btn-calib-back {
+  background: rgba(22, 20, 89, 0.6);
+  border: 1px solid rgba(210, 162, 242, 0.3);
+  color: var(--calib-lilac);
+  padding: 0.5rem 1.1rem;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-calib-back:hover {
+  background: rgba(83, 23, 166, 0.6);
+  border-color: var(--calib-cyan);
+  color: #ffffff;
+  transform: translateX(-2px);
+}
+
+/* Stepper de pasos (Paso 0 a 4) */
+.calibration-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  background: rgba(14, 12, 45, 0.75);
+  border: 1px solid rgba(92, 242, 242, 0.2);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  box-sizing: border-box;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: 0.45;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c2c8f0;
+}
+
+.step-item.is-active {
+  opacity: 1;
+  color: var(--calib-cyan);
+}
+
+.step-item.is-completed {
+  opacity: 0.9;
+  color: var(--calib-green);
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(46, 51, 140, 0.5);
+  border: 1.5px solid rgba(92, 242, 242, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.step-item.is-active .step-number {
+  background: var(--calib-cyan);
+  border-color: var(--calib-cyan);
+  color: #090820;
+  box-shadow: 0 0 14px var(--calib-cyan);
+}
+
+.step-item.is-completed .step-number {
+  background: var(--calib-green);
+  border-color: var(--calib-green);
+  color: #090820;
+}
+
+.step-divider {
+  flex: 1;
+  height: 2px;
+  background: rgba(92, 242, 242, 0.15);
+  margin: 0 0.25rem;
+}
+
+/* Área de contenido: Vista de Cámara (Izquierda) + Panel de Control (Derecha) */
+.calibration-main-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.5rem;
+  width: 100%;
+  align-items: stretch;
+}
+
+/* Viewport de la cámara con Canvas HUD */
+.camera-viewport-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 520px;
+  border-radius: 18px;
+  background: #050414;
+  border: 1.5px solid rgba(92, 242, 242, 0.35);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(83, 23, 166, 0.3);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-video-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.camera-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Efecto espejo natural para entrenamiento */
+  display: block;
+}
+
+/* Brackets tácticos de esquina en el viewport */
+.viewport-bracket {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--calib-cyan);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.vb-tl { top: 12px; left: 12px; border-top: 2px solid var(--calib-cyan); border-left: 2px solid var(--calib-cyan); }
+.vb-tr { top: 12px; right: 12px; border-top: 2px solid var(--calib-cyan); border-right: 2px solid var(--calib-cyan); }
+.vb-bl { bottom: 12px; left: 12px; border-bottom: 2px solid var(--calib-cyan); border-left: 2px solid var(--calib-cyan); }
+.vb-br { bottom: 12px; right: 12px; border-bottom: 2px solid var(--calib-cyan); border-right: 2px solid var(--calib-cyan); }
+
+/* Alerta roja de presencia (Paso 0) */
+.presence-alert-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 51, 102, 0.22);
+  border: 1.5px solid var(--calib-red);
+  box-shadow: 0 0 25px rgba(255, 51, 102, 0.6);
+  border-radius: 9999px;
+  padding: 0.65rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 4;
+  animation: alertPulse 1.2s infinite ease-in-out;
+}
+
+.presence-alert-text {
+  color: #ff4d6d;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(255, 51, 102, 0.8);
+}
+
+@keyframes alertPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.9; }
+  50% { transform: translateX(-50%) scale(1.03); opacity: 1; }
+}
+
+/* Telemetría overlay en vivo sobre la cámara */
+.camera-telemetry-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(9, 8, 32, 0.85);
+  border: 1px solid rgba(92, 242, 242, 0.4);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--calib-cyan);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 3;
+}
+
+.telemetry-dot-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--calib-green);
+  box-shadow: 0 0 8px var(--calib-green);
+}
+
+/* Panel de control derecho */
+.calibration-controls-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 1.75rem;
+  border-radius: 18px;
+  background: var(--calib-panel-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(92, 242, 242, 0.25);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  box-sizing: border-box;
+  gap: 1.5rem;
+}
+
+.step-info-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.step-tag-pill {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--calib-lilac);
+  text-transform: uppercase;
+}
+
+.step-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+}
+
+.step-instruction {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #c2c8f0;
+  margin: 0.25rem 0 0 0;
+}
+
+/* Indicadores de progreso y métricas en tiempo real */
+.step-metric-panel {
+  background: rgba(22, 20, 89, 0.65);
+  border: 1px solid rgba(92, 242, 242, 0.25);
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.metric-label {
+  color: #c2c8f0;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-weight: 800;
+  color: var(--calib-cyan);
+  font-size: 0.95rem;
+}
+
+.calib-progress-bar-bg {
+  width: 100%;
+  height: 10px;
+  background: rgba(14, 12, 45, 0.9);
+  border-radius: 9999px;
+  border: 1px solid rgba(92, 242, 242, 0.2);
+  overflow: hidden;
+}
+
+.calib-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--calib-purple) 0%, var(--calib-lilac) 50%, var(--calib-cyan) 100%);
+  border-radius: 9999px;
+  transition: width 0.15s ease-out;
+  box-shadow: 0 0 12px var(--calib-cyan);
+}
+
+/* Botones de acción del panel */
+.calib-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.btn-calib-action {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  user-select: none;
+}
+
+/* Botón "¡Listo para Pelear!" (Gran Protagonista) */
+.btn-ready-to-fight {
+  background: linear-gradient(135deg, var(--calib-cyan) 0%, #a580e2 50%, var(--calib-purple) 100%);
+  color: #070719;
+  font-size: 1.22rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 0 10px 30px rgba(92, 242, 242, 0.5), 0 0 45px rgba(83, 23, 166, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  animation: fightGlowPulse 2.5s infinite alternate;
+}
+
+.btn-ready-to-fight:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 40px rgba(92, 242, 242, 0.75), 0 0 60px rgba(210, 162, 242, 0.7);
+  color: #000000;
+}
+
+.btn-ready-to-fight:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+@keyframes fightGlowPulse {
+  0% { box-shadow: 0 8px 25px rgba(92, 242, 242, 0.4), 0 0 35px rgba(83, 23, 166, 0.35); }
+  100% { box-shadow: 0 12px 35px rgba(92, 242, 242, 0.7), 0 0 50px rgba(210, 162, 242, 0.6); }
+}
+
+/* Botón secundario de avance o captura */
+.btn-calib-secondary {
+  background: rgba(46, 51, 140, 0.6);
+  border: 1.5px solid rgba(92, 242, 242, 0.4);
+  color: #ffffff;
+}
+
+.btn-calib-secondary:hover:not(:disabled) {
+  background: rgba(83, 23, 166, 0.8);
+  border-color: var(--calib-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(92, 242, 242, 0.3);
+}
+
+.btn-calib-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(92, 242, 242, 0.2);
+}
+
+/* Resumen final de parámetros calibrados */
+.calib-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.summary-item-badge {
+  background: rgba(14, 12, 45, 0.85);
+  border: 1px solid rgba(92, 242, 242, 0.3);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.summary-label {
+  font-size: 0.72rem;
+  color: var(--calib-lilac);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.summary-val {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--calib-cyan);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+@media (max-width: 960px) {
+  .calibration-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .camera-viewport-card {
+    max-height: 400px;
+  }
+
+  .calibration-stepper {
+    overflow-x: auto;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .step-item {
+    font-size: 0.75rem;
+  }
+}

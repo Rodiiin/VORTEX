@@ -2,25 +2,25 @@ import React, { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Register from './components/Register';
 import MainMenu from './components/MainMenu';
+import Calibration from './components/Calibration';
+import GameEngine from './components/GameEngine';
 import DashboardPlaceholder from './components/DashboardPlaceholder';
 
 export default function App() {
-  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'dashboard'
+  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'calibration' | 'game' | 'dashboard'
   const [currentView, setCurrentView] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
+  const [calibrationData, setCalibrationData] = useState(null);
 
-  // Comprobar si existe una sesión activa persistida en localStorage
+  // La vista inicial al cargar la aplicación (http://localhost:5173) siempre es 'login'
+  // El Menú Principal se presenta únicamente cuando el usuario inicia sesión exitosamente.
   useEffect(() => {
-    const savedToken = localStorage.getItem('vortex_token');
     const savedUser = localStorage.getItem('vortex_user');
-    if (savedToken) {
+    if (savedUser) {
       try {
-        const userObj = savedUser ? JSON.parse(savedUser) : { username: 'Piloto VORTEX' };
-        setCurrentUser(userObj);
-        setCurrentView('menu');
+        setCurrentUser(JSON.parse(savedUser));
       } catch {
-        setCurrentUser({ username: 'Piloto VORTEX' });
-        setCurrentView('menu');
+        setCurrentUser(null);
       }
     }
   }, []);
@@ -38,6 +38,12 @@ export default function App() {
     localStorage.removeItem('vortex_user');
     setCurrentUser(null);
     setCurrentView('login');
+  };
+
+  // Manejador de finalización de calibración
+  const handleCalibrationComplete = (params) => {
+    setCalibrationData(params);
+    setCurrentView('game');
   };
 
   return (
@@ -62,12 +68,30 @@ export default function App() {
       {currentView === 'menu' && (
         <MainMenu
           user={currentUser}
+          onStart={() => setCurrentView('calibration')}
+          onContinue={() => setCurrentView('calibration')}
           onSettings={() => console.log('Ajustes seleccionados')}
           onExit={handleLogout}
         />
       )}
 
-      {/* VISTA 4: CENTRO DE CONTROL / DASHBOARD DE ENTRENAMIENTO */}
+      {/* VISTA 4: CALIBRACIÓN BIOMECÁNICA PRE-PARTIDA */}
+      {currentView === 'calibration' && (
+        <Calibration
+          onCalibrationComplete={handleCalibrationComplete}
+          onBackToMenu={() => setCurrentView('menu')}
+        />
+      )}
+
+      {/* VISTA 5: MOTOR DE JUEGO (GAME ENGINE PLACEHOLDER) */}
+      {currentView === 'game' && (
+        <GameEngine
+          calibrationData={calibrationData}
+          onBackToMenu={() => setCurrentView('menu')}
+        />
+      )}
+
+      {/* VISTA 6: CENTRO DE CONTROL / DASHBOARD DE ENTRENAMIENTO */}
       {currentView === 'dashboard' && (
         <DashboardPlaceholder
           user={currentUser}
