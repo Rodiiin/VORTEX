@@ -1,29 +1,35 @@
 import React, { useState } from 'react';
-import './Login.css';
 import './Register.css';
 
 /**
- * Register Component - VORTEX (Circular HUD Portal)
+ * Register Component - VORTEX (HUD Minimalista Circular)
  *
- * @param {Function} onNavigateLogin - Callback to return to Login view
- * @param {string} apiBaseUrl - Custom base URL for FastAPI backend (optional)
+ * Basado en la misma estética técnica y minimalista de Login:
+ * - Fondo negro sólido puro (#000000) sin degradados ni resplandores
+ * - Círculos concéntricos en CSS puro (exterior punteado/dashed, interior sólido fino) en verde neón (#B6F532)
+ * - Tipografía "Intel One Mono" en todos los textos, inputs y botones
+ * - Inputs minimalistas sin cajas de fondo (solo border-bottom)
+ * - Título superior "VORTEX" sobre el círculo exterior
+ * - Enlace inferior interactivo "¿Ya tienes cuenta? Iniciar Sesión" que ejecuta `onNavigateLogin`
+ *
+ * @param {Function} onNavigateLogin - Callback para volver a la pantalla de Login
+ * @param {string} apiBaseUrl - URL base personalizada para el backend FastAPI (opcional)
  */
 export default function Register({ onNavigateLogin, apiBaseUrl }) {
-  // Form input state
+  // Estado de inputs del formulario
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // UI state
+  // Estado de interfaz y feedback
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [focusedField, setFocusedField] = useState(null);
 
-  // Active API base URL
+  // Determinar URL base de la API backend
   const baseUrl = apiBaseUrl || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   // Expresión regular para validación de formato de correo
@@ -126,7 +132,6 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
       }
 
       // Éxito HTTP 201 Created:
-      // Mostrar banner verde y redirigir tras 2 segundos a Login
       setSuccessMessage('¡Cuenta creada con éxito! Redirigiendo al inicio de sesión...');
 
       setTimeout(() => {
@@ -148,159 +153,98 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
   };
 
   return (
-    <div className="vortex-login-wrapper">
-      {/* Luces y mallas de fondo cibernéticas */}
-      <div className="cyber-grid-overlay" />
-      <div className="login-glow-orb login-glow-orb-top-left" />
-      <div className="login-glow-orb login-glow-orb-top-right" />
-      <div className="login-glow-orb login-glow-orb-bottom-left" />
-      <div className="login-glow-orb login-glow-orb-bottom-right" />
-      <div className="login-glow-orb login-glow-orb-center" />
+    <div className="vortex-register-container">
+      {/* 4. ADICIÓN FUERA DEL CÍRCULO: Título Superior VORTEX */}
+      <header className="vortex-top-header">
+        <h1 className="vortex-brand-title">VORTEX</h1>
+      </header>
 
-      {/* Contenedor circular HUD */}
-      <div className="vortex-circle-portal">
-        {/* Anillos orbitales giratorios */}
-        <div className="portal-ring portal-ring-outer" />
-        <div className="portal-ring portal-ring-middle" />
-        <div className="portal-ring portal-ring-glow" />
+      {/* 2. ESTRUCTURA CIRCULAR HUD (CSS Puro) */}
+      <div className="vortex-circles-system vortex-register-circles">
+        {/* Círculo exterior punteado (dashed) */}
+        <div className="vortex-circle-outer" aria-hidden="true" />
 
-        {/* Tarjeta esférica central */}
-        <div className="vortex-login-card-circle">
-          <div className="circle-content-safe-area register-safe-area">
-            
-            {/* Header: Título "VORTEX", Botón ↩ y Subtítulo "Crear cuenta" */}
-            <header className="login-header" style={{ marginBottom: '0.4rem', width: '100%' }}>
-              <h1 className="login-title">VORTEX</h1>
-              
-              <div className="register-subtitle-row">
-                <button
-                  type="button"
-                  className="register-back-btn"
-                  onClick={onNavigateLogin}
-                  disabled={isLoading}
-                  title="Volver al inicio de sesión"
-                  aria-label="Volver a la pantalla de Login"
-                >
-                  ↩
-                </button>
-                <h2 className="login-subtitle">Crear cuenta</h2>
+        {/* Círculo interior con borde sólido fino */}
+        <div className="vortex-circle-inner vortex-register-inner">
+          {/* 3. CONTENIDO CENTRAL (Formulario) */}
+          <div className="vortex-central-content vortex-register-content">
+            <h2 className="vortex-form-title">Crear Cuenta</h2>
+
+            {/* Mensajes de feedback accesibles */}
+            {errorMessage && (
+              <div className="vortex-hud-alert vortex-hud-alert-error" role="alert">
+                <span>{errorMessage}</span>
               </div>
-            </header>
+            )}
 
-            {/* Banner de Éxito verde post-registro */}
             {successMessage && (
-              <div className="register-alert register-alert-success" role="status">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+              <div className="vortex-hud-alert vortex-hud-alert-success" role="status">
                 <span>{successMessage}</span>
               </div>
             )}
 
-            {/* Formulario con 4 campos */}
-            <form className="register-form" onSubmit={handleSubmit} noValidate>
-              
-              {/* Campo 1: Username */}
-              <div className="form-group">
-                <label htmlFor="reg-username" className="form-label">
-                  Username
+            <form className="vortex-minimal-form vortex-register-form" onSubmit={handleSubmit} noValidate>
+              {/* Campo 1: Nombre */}
+              <div className="vortex-field-group">
+                <label htmlFor="reg-username" className="vortex-field-label">
+                  Nombre
                 </label>
-                <div
-                  className={`cyber-input-wrapper ${
-                    focusedField === 'username' ? 'is-focused' : ''
-                  } ${isLoading ? 'is-disabled' : ''}`}
-                >
-                  <span className="input-icon-left">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  </span>
-                  <input
-                    id="reg-username"
-                    name="username"
-                    type="text"
-                    className="cyber-input"
-                    placeholder="Ingresa un nombre de usuario"
-                    value={username}
-                    onChange={handleInputChange(setUsername)}
-                    onFocus={() => setFocusedField('username')}
-                    onBlur={() => setFocusedField(null)}
-                    disabled={isLoading || Boolean(successMessage)}
-                    autoComplete="username"
-                    autoFocus
-                  />
-                </div>
+                <input
+                  id="reg-username"
+                  name="username"
+                  type="text"
+                  className="vortex-clean-input"
+                  placeholder="Ingresa tu nombre de usuario"
+                  value={username}
+                  onChange={handleInputChange(setUsername)}
+                  disabled={isLoading || Boolean(successMessage)}
+                  autoComplete="username"
+                  autoFocus
+                />
               </div>
 
-              {/* Campo 2: Email */}
-              <div className="form-group">
-                <label htmlFor="reg-email" className="form-label">
-                  Email
+              {/* Campo 2: Correo electrónico */}
+              <div className="vortex-field-group">
+                <label htmlFor="reg-email" className="vortex-field-label">
+                  Correo electrónico
                 </label>
-                <div
-                  className={`cyber-input-wrapper ${
-                    focusedField === 'email' ? 'is-focused' : ''
-                  } ${isLoading ? 'is-disabled' : ''}`}
-                >
-                  <span className="input-icon-left">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect width="20" height="16" x="2" y="4" rx="2" />
-                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                    </svg>
-                  </span>
-                  <input
-                    id="reg-email"
-                    name="email"
-                    type="email"
-                    className="cyber-input"
-                    placeholder="correo@ejemplo.com"
-                    value={email}
-                    onChange={handleInputChange(setEmail)}
-                    onFocus={() => setFocusedField('email')}
-                    onBlur={() => setFocusedField(null)}
-                    disabled={isLoading || Boolean(successMessage)}
-                    autoComplete="email"
-                  />
-                </div>
+                <input
+                  id="reg-email"
+                  name="email"
+                  type="email"
+                  className="vortex-clean-input"
+                  placeholder="correo@ejemplo.com"
+                  value={email}
+                  onChange={handleInputChange(setEmail)}
+                  disabled={isLoading || Boolean(successMessage)}
+                  autoComplete="email"
+                />
               </div>
 
-              {/* Campo 3: Password con toggle */}
-              <div className="form-group">
-                <label htmlFor="reg-password" className="form-label">
-                  Password
+              {/* Campo 3: Contraseña */}
+              <div className="vortex-field-group">
+                <label htmlFor="reg-password" className="vortex-field-label">
+                  Contraseña
                 </label>
-                <div
-                  className={`cyber-input-wrapper ${
-                    focusedField === 'password' ? 'is-focused' : ''
-                  } ${isLoading ? 'is-disabled' : ''}`}
-                >
-                  <span className="input-icon-left">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  </span>
+                <div className="vortex-input-with-action">
                   <input
                     id="reg-password"
                     name="password"
                     type={showPassword ? 'text' : 'password'}
-                    className="cyber-input"
+                    className="vortex-clean-input vortex-password-clean-input"
                     placeholder="Mínimo 6 caracteres"
                     value={password}
                     onChange={handleInputChange(setPassword)}
-                    onFocus={() => setFocusedField('password')}
-                    onBlur={() => setFocusedField(null)}
                     disabled={isLoading || Boolean(successMessage)}
                     autoComplete="new-password"
                   />
                   <button
                     type="button"
-                    className="btn-password-toggle"
+                    className="vortex-pw-toggle-btn"
                     onClick={() => setShowPassword((prev) => !prev)}
                     disabled={isLoading || Boolean(successMessage)}
-                    title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
                   >
                     {showPassword ? (
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -319,41 +263,30 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                 </div>
               </div>
 
-              {/* Campo 4: Confirm Password */}
-              <div className="form-group">
-                <label htmlFor="reg-confirm-password" className="form-label">
-                  Confirm Password
+              {/* Campo 4: Confirmar Contraseña */}
+              <div className="vortex-field-group">
+                <label htmlFor="reg-confirm-password" className="vortex-field-label">
+                  Confirmar Contraseña
                 </label>
-                <div
-                  className={`cyber-input-wrapper ${
-                    focusedField === 'confirmPassword' ? 'is-focused' : ''
-                  } ${isLoading ? 'is-disabled' : ''}`}
-                >
-                  <span className="input-icon-left">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                  </span>
+                <div className="vortex-input-with-action">
                   <input
                     id="reg-confirm-password"
                     name="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
-                    className="cyber-input"
-                    placeholder="Repite la contraseña"
+                    className="vortex-clean-input vortex-password-clean-input"
+                    placeholder="Repite tu contraseña"
                     value={confirmPassword}
                     onChange={handleInputChange(setConfirmPassword)}
-                    onFocus={() => setFocusedField('confirmPassword')}
-                    onBlur={() => setFocusedField(null)}
                     disabled={isLoading || Boolean(successMessage)}
                     autoComplete="new-password"
                   />
                   <button
                     type="button"
-                    className="btn-password-toggle"
+                    className="vortex-pw-toggle-btn"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
                     disabled={isLoading || Boolean(successMessage)}
-                    title={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                    aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    title={showConfirmPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
                   >
                     {showConfirmPassword ? (
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -372,61 +305,34 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                 </div>
               </div>
 
-              {/* Botón Principal: CREAR CUENTA / SUBMIT */}
+              {/* Botón para enviar el formulario */}
               <button
                 type="submit"
-                className={`btn-vortex-submit btn-register-submit ${isLoading ? 'is-loading' : ''}`}
+                className={`vortex-minimal-submit-btn ${isLoading ? 'is-loading' : ''}`}
                 disabled={isLoading || Boolean(successMessage)}
               >
-                {isLoading ? (
-                  <>
-                    <span className="vortex-spinner" aria-hidden="true" />
-                    <span>REGISTRANDO...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>CREAR CUENTA</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14" />
-                      <path d="m12 5 7 7-7 7" />
-                    </svg>
-                  </>
-                )}
+                {isLoading ? 'Registrando...' : 'Crear Cuenta'}
               </button>
             </form>
-
-            {/* Mensajes de error claros en texto rojo debajo del formulario */}
-            {errorMessage && (
-              <div className="register-error-banner" role="alert">
-                <span className="register-error-icon">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                </span>
-                <span className="register-error-text">{errorMessage}</span>
-              </div>
-            )}
-
-            {/* Footer con link adicional para volver a Login */}
-            <footer className="register-footer">
-              <p className="login-footer-text">
-                <span>¿Ya tienes cuenta?</span>{' '}
-                <button
-                  type="button"
-                  className="btn-link-register"
-                  onClick={onNavigateLogin}
-                  disabled={isLoading}
-                >
-                  Iniciar Sesión
-                </button>
-              </p>
-            </footer>
-
           </div>
         </div>
       </div>
+
+      {/* 4. ADICIÓN FUERA DEL CÍRCULO: Opción de Regreso */}
+      <footer className="vortex-bottom-footer">
+        <button
+          type="button"
+          className="vortex-crear-cuenta-btn"
+          onClick={() => {
+            if (typeof onNavigateLogin === 'function') {
+              onNavigateLogin();
+            }
+          }}
+          disabled={isLoading}
+        >
+          ¿Ya tienes cuenta? Iniciar Sesión
+        </button>
+      </footer>
     </div>
   );
 }

@@ -1,222 +1,411 @@
 /* ==========================================================================
-   VORTEX - REGISTER COMPONENT STYLES
-   Basado en el diseño circular HUD y paleta de colores del proyecto:
-     - #D2A2F2 (Neon Lilac Glow)
-     - #5317A6 (Electric Deep Purple)
-     - #161459 (Abyssal Cosmic Blue)
-     - #2E338C (Cyber Indigo / Royal Slate)
-     - #5CF2F2 (Electric Cyber Cyan Highlight)
+   VORTEX - MINIMALIST CIRCULAR HUD REGISTER COMPONENT STYLES ("Register.css")
+   Diseño técnico y limpio con paridad visual absoluta con Login
+
+   Paleta Oficial:
+     - Fondo Oscuro Sólido: #000000 (Sin degradados ni sombras)
+     - Acento Verde Neón: #B6F532
+     - Blanco Roto (Texto): #F3F3EE
+     - Alerta Error: #ff4d6d
+   Tipografía Oficial (Mockups/tipografia.txt):
+     - Intel One Mono
    ========================================================================== */
 
-/* Botón de Regresar (Flecha ↩ del bosquejo) */
-.register-back-btn {
-  background: rgba(83, 23, 166, 0.35);
-  border: 1px solid rgba(92, 242, 242, 0.4);
-  color: var(--vx-cyan, #5CF2F2);
-  width: 34px;
-  height: 34px;
+@import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  --vx-color-bg-solid: #000000;
+  --vx-color-neon: #B6F532;
+  --vx-color-white: #F3F3EE;
+  --vx-color-placeholder: rgba(243, 243, 238, 0.35);
+  --vx-color-input-border: rgba(182, 245, 50, 0.4);
+  --vx-color-danger: #ff4d6d;
+  --vx-font-intel: 'Intel One Mono', monospace;
+}
+
+/* 1. TIPOGRAFÍA INTEL ONE MONO APLICADA A TODOS LOS ELEMENTOS */
+.vortex-register-container,
+.vortex-register-container *,
+.vortex-register-container button,
+.vortex-register-container input,
+.vortex-register-container label,
+.vortex-register-container h1,
+.vortex-register-container h2,
+.vortex-register-container span,
+.vortex-register-container p {
+  font-family: var(--vx-font-intel) !important;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   1. FONDO COMPLETAMENTE OSCURO Y SÓLIDO (SIN DEGRADADOS NI SOMBRAS)
+   ========================================================================== */
+.vortex-register-container {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: clamp(0.75rem, 2vh, 1.8rem) 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--vx-color-bg-solid);
+  background-image: none !important;
+  color: var(--vx-color-white);
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* ==========================================================================
+   4. ADICIÓN FUERA DEL CÍRCULO: TÍTULO SUPERIOR "VORTEX"
+   ========================================================================== */
+.vortex-register-container .vortex-top-header {
+  margin: 0 0 clamp(0.5rem, 1.5vh, 1.25rem) 0;
+  text-align: center;
+  z-index: 2;
+}
+
+.vortex-register-container .vortex-brand-title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--vx-color-white);
+  text-transform: uppercase;
+  line-height: 1;
+  text-shadow: none; /* Cero resplandor difuminado */
+}
+
+/* ==========================================================================
+   2. ESTRUCTURA CIRCULAR HUD (CSS PURO, LÍNEAS NÍTIDAS Y PLANAS)
+   ========================================================================== */
+.vortex-register-circles {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(340px, 70vmin, 580px);
+  height: clamp(340px, 70vmin, 580px);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  z-index: 2;
+}
+
+/* Círculo exterior punteado (dashed) nítido */
+.vortex-register-circles .vortex-circle-outer {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
+  border: 2px dashed var(--vx-color-neon);
+  box-shadow: none !important;
+  pointer-events: none;
+  animation: vortexRotateDashed 120s linear infinite;
+}
+
+@keyframes vortexRotateDashed {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Círculo interior con borde sólido fino */
+.vortex-register-inner {
+  position: relative;
+  width: 78%;
+  height: 78%;
+  border-radius: 50%;
+  border: 1.5px solid var(--vx-color-neon);
+  background-color: var(--vx-color-bg-solid);
+  background-image: none;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.5rem, 1.8vw, 1.2rem);
+  z-index: 3;
+}
+
+/* ==========================================================================
+   3. CONTENIDO CENTRAL (FORMULARIO Y CAMPOS MINIMALISTAS)
+   ========================================================================== */
+.vortex-register-content {
+  width: 82%;
+  max-width: 275px;
+  max-height: 92%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(182, 245, 50, 0.3) transparent;
+}
+
+.vortex-register-content::-webkit-scrollbar {
+  width: 3px;
+}
+
+.vortex-register-content::-webkit-scrollbar-thumb {
+  background: rgba(182, 245, 50, 0.3);
+  border-radius: 2px;
+}
+
+/* Título interno del formulario: Crear Cuenta */
+.vortex-register-content .vortex-form-title {
+  margin: 0 0 clamp(0.35rem, 0.8vh, 0.65rem) 0;
+  font-size: clamp(1.05rem, 1.9vw, 1.35rem);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--vx-color-white);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Formulario minimalista de 4 campos */
+.vortex-register-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.25rem, 0.7vh, 0.45rem);
+}
+
+.vortex-register-form .vortex-field-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+}
+
+.vortex-register-form .vortex-field-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--vx-color-white);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.1rem;
+}
+
+/* Inputs extremadamente minimalistas: sin cajas de fondo, solo border-bottom */
+.vortex-register-form .vortex-clean-input {
+  width: 100%;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1.5px solid var(--vx-color-input-border) !important;
+  border-radius: 0 !important;
+  padding: 0.22rem 0.15rem;
+  color: var(--vx-color-white);
+  font-size: 0.82rem;
+  outline: none;
+  box-shadow: none !important;
+  transition: border-bottom-color 0.2s ease;
+}
+
+.vortex-register-form .vortex-clean-input:focus {
+  border-bottom-color: var(--vx-color-neon) !important;
+}
+
+.vortex-register-form .vortex-clean-input::placeholder {
+  color: var(--vx-color-placeholder);
+  font-size: 0.74rem;
+}
+
+.vortex-register-form .vortex-clean-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input con botón toggle discreto */
+.vortex-register-form .vortex-input-with-action {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.vortex-register-form .vortex-password-clean-input {
+  padding-right: 1.8rem;
+}
+
+.vortex-register-form .vortex-pw-toggle-btn {
+  position: absolute;
+  right: 2px;
+  bottom: 3px;
+  background: transparent !important;
+  border: none !important;
+  color: var(--vx-color-neon);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+  box-shadow: none !important;
+}
+
+.vortex-register-form .vortex-pw-toggle-btn:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.vortex-register-form .vortex-pw-toggle-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Botón Minimalista de Envío: Reducido para no colisionar con la curvatura de la circunferencia */
+.vortex-register-form .vortex-minimal-submit-btn {
+  width: auto;
+  min-width: 140px;
+  max-width: 180px;
+  align-self: center;
+  margin: 0.35rem auto 0 auto;
+  padding: 0.4rem 1.1rem;
+  background: transparent;
+  border: 1.5px solid var(--vx-color-neon);
+  border-radius: 4px;
+  color: var(--vx-color-neon);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: 1;
-  transition: all 0.25s ease;
-  box-shadow: 0 0 10px rgba(92, 242, 242, 0.2);
-  padding: 0;
-  flex-shrink: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  outline: none;
+  box-shadow: none;
 }
 
-.register-back-btn:hover {
-  background: var(--vx-cyan, #5CF2F2);
-  color: #070716;
-  border-color: #ffffff;
-  transform: scale(1.1) rotate(-8deg);
-  box-shadow: 0 0 16px rgba(92, 242, 242, 0.7);
+.vortex-register-form .vortex-minimal-submit-btn:hover:not(:disabled) {
+  background-color: var(--vx-color-neon);
+  color: #000000;
 }
 
-.register-back-btn:active {
-  transform: scale(0.95);
+.vortex-register-form .vortex-minimal-submit-btn:active:not(:disabled) {
+  opacity: 0.85;
 }
 
-/* Fila de Encabezado con Botón de Regreso y Subtítulo */
-.register-subtitle-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
+.vortex-register-form .vortex-minimal-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vortex-register-form .vortex-minimal-submit-btn.is-loading {
+  border-color: rgba(182, 245, 50, 0.6);
+  color: var(--vx-color-neon);
+  background: rgba(182, 245, 50, 0.08);
+}
+
+/* Alertas de Error y Éxito estilo terminal */
+.vortex-register-content .vortex-hud-alert {
   width: 100%;
-  position: relative;
-  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.35rem;
+  text-align: center;
+  border-radius: 3px;
+  box-shadow: none;
 }
 
-.register-subtitle-row .register-back-btn {
-  position: absolute;
-  left: 0;
+.vortex-register-content .vortex-hud-alert-error {
+  color: var(--vx-color-danger);
+  background: transparent;
+  border: 1px dashed var(--vx-color-danger);
 }
 
-/* Safe area con scroll suave si la pantalla es reducida */
-.register-safe-area {
-  width: 86%;
-  max-width: 380px;
-  max-height: 90%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.vortex-register-content .vortex-hud-alert-success {
+  color: var(--vx-color-neon);
+  background: transparent;
+  border: 1px solid var(--vx-color-neon);
+}
+
+/* ==========================================================================
+   4. ADICIÓN FUERA DEL CÍRCULO: OPCIÓN DE REGRESO A LOGIN
+   ========================================================================== */
+.vortex-register-container .vortex-bottom-footer {
+  margin: clamp(0.75rem, 2.2vh, 1.6rem) 0 0 0;
   text-align: center;
   z-index: 2;
-  box-sizing: border-box;
-  padding: 0.5rem 0.2rem;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(92, 242, 242, 0.3) transparent;
 }
 
-.register-safe-area::-webkit-scrollbar {
-  width: 4px;
+.vortex-register-container .vortex-crear-cuenta-btn {
+  background: transparent;
+  border: none;
+  color: var(--vx-color-neon);
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+  outline: none;
+  box-shadow: none;
 }
 
-.register-safe-area::-webkit-scrollbar-thumb {
-  background: rgba(92, 242, 242, 0.3);
-  border-radius: 4px;
+.vortex-register-container .vortex-crear-cuenta-btn:hover {
+  color: #FFFFFF;
 }
 
-/* Formulario de Registro compacto para la esfera HUD */
-.register-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
+.vortex-register-container .vortex-crear-cuenta-btn:focus-visible {
+  outline: 1.5px dashed var(--vx-color-neon);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
-.register-form .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  text-align: left;
-}
-
-.register-form .form-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: #f5f6fa;
-  text-transform: uppercase;
-  padding-left: 2px;
-}
-
-.register-form .cyber-input-wrapper {
-  border-radius: 8px;
-}
-
-.register-form .cyber-input {
-  padding: 0.55rem 0.65rem 0.55rem 0.55rem;
-  font-size: 0.84rem;
-}
-
-.register-form .input-icon-left {
-  padding-left: 0.65rem;
-}
-
-.register-form .btn-password-toggle {
-  padding: 0.4rem 0.65rem;
-}
-
-/* Botón principal de Submit para Registro */
-.btn-register-submit {
-  margin-top: 0.3rem;
-  padding: 0.75rem 1rem;
-  font-size: 0.88rem;
-  letter-spacing: 0.12em;
-}
-
-/* Banner de Notificación y Alerta */
-.register-alert {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.76rem;
-  line-height: 1.3;
-  box-sizing: border-box;
-  animation: registerAlertIn 0.25s ease-out;
-  text-align: left;
-}
-
-.register-alert-success {
-  background: rgba(0, 255, 170, 0.18);
-  border: 1px solid rgba(0, 255, 170, 0.75);
-  color: #00ffaa;
-  box-shadow: 0 0 16px rgba(0, 255, 170, 0.35);
-  font-weight: 600;
-}
-
-/* Mensaje de Error en Texto Rojo Debajo del Formulario */
-.register-error-banner {
-  width: 100%;
-  margin-top: 0.45rem;
-  padding: 0.55rem 0.75rem;
-  background: rgba(255, 51, 102, 0.16);
-  border: 1px solid rgba(255, 51, 102, 0.75);
-  border-radius: 8px;
-  color: #ff3366;
-  font-size: 0.76rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 0 14px rgba(255, 51, 102, 0.3);
-  animation: registerAlertIn 0.25s ease-out;
-  box-sizing: border-box;
-  text-align: left;
-}
-
-.register-error-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ff3366;
-}
-
-.register-error-text {
-  flex: 1;
-}
-
-@keyframes registerAlertIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
+/* ==========================================================================
+   RESPONSIVIDAD Y PANTALLAS PEQUEÑAS
+   ========================================================================== */
+@media (max-width: 480px) {
+  .vortex-register-circles {
+    width: 90vw;
+    height: 90vw;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-/* Footer de Registro */
-.register-footer {
-  margin-top: 0.5rem;
-  text-align: center;
-  font-size: 0.78rem;
-  color: #c2c8f0;
-}
+  .vortex-register-inner {
+    width: 82%;
+    height: 82%;
+    padding: 0.4rem;
+  }
 
-@media (max-width: 520px) {
-  .register-safe-area {
-    width: 90%;
-    max-width: 320px;
+  .vortex-register-content {
+    width: 86%;
+    max-width: 250px;
   }
-  .register-form {
-    gap: 0.4rem;
+
+  .vortex-register-content .vortex-form-title {
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
   }
-  .register-form .cyber-input {
-    padding: 0.48rem 0.55rem;
-    font-size: 0.8rem;
+
+  .vortex-register-form .vortex-clean-input {
+    font-size: 0.78rem;
+    padding: 0.18rem 0.1rem;
+  }
+
+  .vortex-register-form .vortex-field-label {
+    font-size: 0.68rem;
+  }
+
+  .vortex-register-form .vortex-minimal-submit-btn {
+    min-width: 130px;
+    max-width: 160px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.72rem;
+  }
+
+  .vortex-register-container .vortex-brand-title {
+    font-size: 2rem;
   }
 }

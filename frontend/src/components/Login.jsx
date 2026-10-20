@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import './Login.css';
 
 /**
- * Login Component - VORTEX (HUD Biomecánico Circular)
+ * Login Component - VORTEX (HUD Minimalista Circular)
  *
- * Recrea con fidelidad la interfaz del mockup en `Mockups/Imagenes UI/iniciar sesion.png`
- * con círculos concéntricos en CSS puro, rotación continua y sutil en el círculo exterior punteado,
- * campos minimalistas para "Nombre" y "Contraseña", título superior "VORTEX" con brillo neón
- * y enlace inferior para registrar una nueva cuenta.
+ * Basado en la interfaz técnica de `Mockups/Imagenes UI/iniciar sesion.png`:
+ * - Fondo negro sólido y limpio sin degradados ni resplandores
+ * - Círculos concéntricos en CSS puro (exterior punteado/dashed, interior sólido fino) en verde neón (#B6F532)
+ * - Tipografía "Intel One Mono" aplicada a todos los textos, inputs y botones
+ * - Inputs minimalistas sin cajas de fondo
+ * - Título superior "VORTEX" sobre el círculo exterior
+ * - Enlace inferior interactivo "Crear cuenta" que ejecuta `onNavigateRegister`
  *
  * @param {Function} onLoginSuccess - Callback invocado al autenticar exitosamente: (data) => void
  * @param {Function} onNavigateRegister - Callback para navegar a la pantalla de Registro
@@ -109,7 +112,7 @@ export default function Login({
         localStorage.setItem('vortex_user', JSON.stringify(data.user));
       }
 
-      setSuccessMessage('Ingresando a la cuenta.');
+      setSuccessMessage('Sesión iniciada correctamente.');
 
       setTimeout(() => {
         if (typeof onLoginSuccess === 'function') {
@@ -133,32 +136,23 @@ export default function Login({
 
   return (
     <div className="vortex-login-container">
-      {/* Fondo ambiental sutil y viñeta HUD */}
-      <div className="login-vignette-overlay" aria-hidden="true" />
-      <div className="login-ambient-glow" aria-hidden="true" />
-
-      {/* 3. TÍTULO SUPERIOR FUERA DEL MOCKUP CON BRILLO NEÓN */}
-      <header className="vortex-login-top-header">
-        <h1 className="vortex-main-brand-title">VORTEX</h1>
-        <div className="vortex-system-badge">
-          <span className="vortex-badge-dot" />
-          <span></span>
-        </div>
+      {/* 4. ADICIÓN FUERA DEL MOCKUP: Título Superior VORTEX */}
+      <header className="vortex-top-header">
+        <h1 className="vortex-brand-title">VORTEX</h1>
       </header>
 
-      {/* 1. ESTRUCTURA CIRCULAR (HUD CSS CONCÉNTRICO) */}
-      <div className="vortex-hud-system">
-        {/* Círculo exterior punteado (dashed) con rotación continua y lenta */}
-        <div className="vortex-circle-outer-dashed" aria-hidden="true" />
+      {/* 2. ESTRUCTURA CIRCULAR MINIMALISTA (CSS Puro) */}
+      <div className="vortex-circles-system">
+        {/* Círculo exterior punteado (dashed) */}
+        <div className="vortex-circle-outer" aria-hidden="true" />
 
-        {/* Círculo interior con borde sólido */}
-        <div className="vortex-circle-inner-solid">
-          {/* 2. CONTENIDO CENTRAL (Formulario) */}
-          <div className="vortex-hud-form-area">
-            {/* Título "Iniciar Sesión" tal como en el mockup */}
-            <h2 className="vortex-hud-login-title">Iniciar Sesión</h2>
+        {/* Círculo interior con borde sólido fino */}
+        <div className="vortex-circle-inner">
+          {/* 3. CONTENIDO CENTRAL (Formulario) */}
+          <div className="vortex-central-content">
+            <h2 className="vortex-form-title">Iniciar Sesión</h2>
 
-            {/* Mensajes de alerta y feedback */}
+            {/* Mensajes de feedback accesibles */}
             {errorMessage && (
               <div className="vortex-hud-alert vortex-hud-alert-error" role="alert">
                 <span>{errorMessage}</span>
@@ -171,18 +165,17 @@ export default function Login({
               </div>
             )}
 
-            {/* Formulario de Inicio de Sesión Minimalista */}
-            <form className="vortex-hud-form" onSubmit={handleSubmit} noValidate>
-              {/* Campo 1: Nombre */}
-              <div className="vortex-minimal-field">
-                <label htmlFor="vortex-login-username" className="vortex-minimal-label">
+            <form className="vortex-minimal-form" onSubmit={handleSubmit} noValidate>
+              {/* Campo Nombre */}
+              <div className="vortex-field-group">
+                <label htmlFor="login-username" className="vortex-field-label">
                   Nombre
                 </label>
                 <input
-                  id="vortex-login-username"
+                  id="login-username"
                   name="username"
                   type="text"
-                  className="vortex-minimal-input"
+                  className="vortex-clean-input"
                   placeholder="Ingresa tu nombre"
                   value={username}
                   onChange={handleUsernameChange}
@@ -192,17 +185,17 @@ export default function Login({
                 />
               </div>
 
-              {/* Campo 2: Contraseña */}
-              <div className="vortex-minimal-field">
-                <label htmlFor="vortex-login-password" className="vortex-minimal-label">
+              {/* Campo Contraseña */}
+              <div className="vortex-field-group">
+                <label htmlFor="login-password" className="vortex-field-label">
                   Contraseña
                 </label>
-                <div className="vortex-password-input-row">
+                <div className="vortex-input-with-action">
                   <input
-                    id="vortex-login-password"
+                    id="login-password"
                     name="password"
                     type={showPassword ? 'text' : 'password'}
-                    className="vortex-minimal-input vortex-password-input"
+                    className="vortex-clean-input vortex-password-clean-input"
                     placeholder="Ingresa tu contraseña"
                     value={password}
                     onChange={handlePasswordChange}
@@ -211,11 +204,11 @@ export default function Login({
                   />
                   <button
                     type="button"
-                    className="vortex-password-toggle-btn"
+                    className="vortex-pw-toggle-btn"
                     onClick={() => setShowPassword((prev) => !prev)}
                     disabled={isLoading}
-                    title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
                   >
                     {showPassword ? (
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -237,29 +230,21 @@ export default function Login({
               {/* Botón para enviar el formulario */}
               <button
                 type="submit"
-                className={`vortex-hud-submit-btn ${isLoading ? 'is-loading' : ''}`}
+                className={`vortex-minimal-submit-btn ${isLoading ? 'is-loading' : ''}`}
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <>
-                    <span className="vortex-hud-spinner" aria-hidden="true" />
-                    <span>AUTENTICANDO...</span>
-                  </>
-                ) : (
-                  <span>INICIAR SESIÓN</span>
-                )}
+                {isLoading ? 'Autenticando...' : 'Iniciar Sesión'}
               </button>
             </form>
           </div>
         </div>
       </div>
 
-      {/* 3. ADICIONES: OPCIÓN DE REGISTRO DISCRETA EN LA PARTE INFERIOR */}
-      <footer className="vortex-bottom-register">
-        <span className="vortex-register-text">¿No tienes cuenta?</span>
+      {/* 4. ADICIÓN FUERA DEL MOCKUP: Opción de Registro */}
+      <footer className="vortex-bottom-footer">
         <button
           type="button"
-          className="vortex-register-link-btn"
+          className="vortex-crear-cuenta-btn"
           onClick={() => {
             if (typeof onNavigateRegister === 'function') {
               onNavigateRegister();

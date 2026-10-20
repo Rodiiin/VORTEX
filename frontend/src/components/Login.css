@@ -1,184 +1,111 @@
 /* ==========================================================================
-   VORTEX - CIRCULAR HUD PORTAL LOGIN COMPONENT STYLES ("Login.css")
-   Diseño de HUD Biomecánico basado en Mockups/Imagenes UI/iniciar sesion.png
-   Paleta de Color Oficial (Mockups/Paleta de color.txt):
-     - #1B1D26 (Fondo Oscuro / Superficie base)
-     - #B6F532 (Verde Lima Neón de Acento)
-     - #F3F3EE (Blanco Roto / Texto principal)
-     - #B0B7F5 (Lavanda Suave / Texto secundario y bordes)
-     - #262149 (Índigo Oscuro / Fondo de tarjetas de opciones)
-     - #6554D9 (Púrpura / Violeta Eléctrico)
+   VORTEX - MINIMALIST CIRCULAR HUD LOGIN COMPONENT STYLES ("Login.css")
+   Diseño técnico y limpio basado en Mockups/Imagenes UI/iniciar sesion.png
+
+   Paleta Oficial:
+     - Fondo Oscuro Sólido: #000000 (Sin degradados ni sombras)
+     - Acento Verde Neón: #B6F532
+     - Blanco Roto (Texto): #F3F3EE
+     - Alerta Error: #ff4d6d
+   Tipografía Oficial (Mockups/tipografia.txt):
+     - Intel One Mono
    ========================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
 :root {
-  --vx-color-bg: #1B1D26;
+  --vx-color-bg-solid: #000000;
   --vx-color-neon: #B6F532;
   --vx-color-white: #F3F3EE;
-  --vx-color-lavender: #B0B7F5;
-  --vx-color-indigo: #262149;
-  --vx-color-purple: #6554D9;
+  --vx-color-placeholder: rgba(243, 243, 238, 0.35);
+  --vx-color-input-border: rgba(182, 245, 50, 0.4);
+  --vx-color-danger: #ff4d6d;
+  --vx-font-intel: 'Intel One Mono', monospace;
+}
 
-  /* Resplandores y auras neón */
-  --vx-neon-glow: rgba(182, 245, 50, 0.45);
-  --vx-neon-subtle: rgba(182, 245, 50, 0.16);
-  --vx-danger: #ff3366;
-  --vx-danger-bg: rgba(255, 51, 102, 0.16);
-  --vx-danger-border: rgba(255, 51, 102, 0.65);
-
-  --vx-font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --vx-font-mono: 'JetBrains Mono', 'Courier New', monospace;
+/* 1. TIPOGRAFÍA INTEL ONE MONO APLICADA A TODOS LOS ELEMENTOS DE ESTA VISTA */
+.vortex-login-container,
+.vortex-login-container *,
+.vortex-login-container button,
+.vortex-login-container input,
+.vortex-login-container label,
+.vortex-login-container h1,
+.vortex-login-container h2,
+.vortex-login-container span,
+.vortex-login-container p {
+  font-family: var(--vx-font-intel) !important;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ==========================================================================
-   1. CONTENEDOR PRINCIPAL A PANTALLA COMPLETA (FONDO OSCURO)
+   1. FONDO COMPLETAMENTE OSCURO Y SÓLIDO (SIN DEGRADADOS NI SOMBRAS)
    ========================================================================== */
 .vortex-login-container {
   position: relative;
   width: 100vw;
   min-height: 100vh;
   margin: 0;
-  padding: clamp(1rem, 2.5vh, 2.5rem) 1rem;
-  box-sizing: border-box;
+  padding: clamp(1rem, 2.5vh, 2rem) 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: var(--vx-color-bg-solid);
+  background-image: none !important;
+  color: var(--vx-color-white);
   overflow-x: hidden;
   user-select: none;
-  font-family: var(--vx-font-main);
-  background-color: var(--vx-color-bg);
-  background-image: 
-    radial-gradient(circle at 50% 50%, rgba(38, 33, 73, 0.45) 0%, rgba(27, 29, 38, 0.95) 68%, #0d0e14 100%),
-    radial-gradient(circle at 50% 20%, rgba(182, 245, 50, 0.05) 0%, transparent 45%),
-    linear-gradient(180deg, #12131b 0%, #1B1D26 50%, #0d0e14 100%);
-  background-attachment: fixed;
-  color: var(--vx-color-white);
-}
-
-/* Viñeta ambiental y gradiente radial decorativo */
-.login-vignette-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: 
-    radial-gradient(circle at 50% 50%, transparent 40%, rgba(13, 14, 20, 0.7) 100%),
-    linear-gradient(180deg, rgba(13, 14, 20, 0.4) 0%, transparent 25%, transparent 75%, rgba(13, 14, 20, 0.6) 100%);
-  z-index: 1;
-}
-
-.login-ambient-glow {
-  position: absolute;
-  width: 550px;
-  height: 550px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(182, 245, 50, 0.08) 0%, transparent 70%);
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 1;
-  animation: pulseAmbient 8s ease-in-out infinite alternate;
-}
-
-@keyframes pulseAmbient {
-  0% { transform: scale(0.92); opacity: 0.5; }
-  100% { transform: scale(1.08); opacity: 0.85; }
 }
 
 /* ==========================================================================
-   3. ADICIONES: TÍTULO SUPERIOR "VORTEX" CON EFECTO DE BRILLO NEÓN
+   4. ADICIÓN FUERA DEL MOCKUP: TÍTULO SUPERIOR "VORTEX"
    ========================================================================== */
-.vortex-login-top-header {
-  position: relative;
-  z-index: 10;
+.vortex-top-header {
+  margin: 0 0 clamp(0.75rem, 1.8vh, 1.5rem) 0;
   text-align: center;
-  margin-bottom: clamp(1rem, 2vh, 1.8rem);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
+  z-index: 2;
 }
 
-.vortex-main-brand-title {
+.vortex-brand-title {
   margin: 0;
-  font-family: var(--vx-font-main);
-  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--vx-color-white);
-  text-shadow: 
-    0 0 12px var(--vx-color-neon),
-    0 0 28px rgba(182, 245, 50, 0.65),
-    0 0 55px rgba(182, 245, 50, 0.35),
-    0 4px 18px rgba(0, 0, 0, 0.9);
-  transition: text-shadow 0.3s ease;
-}
-
-.vortex-main-brand-title:hover {
-  text-shadow: 
-    0 0 16px var(--vx-color-neon),
-    0 0 38px rgba(182, 245, 50, 0.85),
-    0 0 70px rgba(182, 245, 50, 0.5),
-    0 4px 22px rgba(0, 0, 0, 0.95);
-}
-
-.vortex-system-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--vx-font-mono);
-  font-size: 0.72rem;
+  font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--vx-color-neon);
+  letter-spacing: 0.25em;
+  color: var(--vx-color-white);
   text-transform: uppercase;
-  opacity: 0.92;
-}
-
-.vortex-badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--vx-color-neon);
-  box-shadow: 0 0 8px var(--vx-color-neon);
-  animation: pulseDot 2s ease-in-out infinite;
-}
-
-@keyframes pulseDot {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(0.8); opacity: 0.45; }
+  line-height: 1;
+  text-shadow: none; /* Sin glow ni efectos borrosos */
 }
 
 /* ==========================================================================
-   1. ESTRUCTURA CIRCULAR (HUD CSS CONCÉNTRICO)
+   2. ESTRUCTURA CIRCULAR MINIMALISTA (CSS PURO, LÍNEAS NÍTIDAS Y PLANAS)
    ========================================================================== */
-.vortex-hud-system {
+.vortex-circles-system {
   position: relative;
-  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(320px, 66vmin, 560px);
-  height: clamp(320px, 66vmin, 560px);
+  width: clamp(330px, 64vmin, 550px);
+  height: clamp(330px, 64vmin, 550px);
   aspect-ratio: 1 / 1;
   margin: 0 auto;
+  z-index: 2;
 }
 
-/* Círculo exterior con borde punteado (dashed) y rotación continua sutil */
-.vortex-circle-outer-dashed {
+/* Círculo exterior punteado (dashed) nítido */
+.vortex-circle-outer {
   position: absolute;
   inset: 0;
   border-radius: 50%;
   border: 2px dashed var(--vx-color-neon);
-  box-shadow: 
-    0 0 25px rgba(182, 245, 50, 0.28),
-    inset 0 0 25px rgba(182, 245, 50, 0.14);
+  box-shadow: none !important; /* Cero glow pesado */
   pointer-events: none;
-  transform-origin: center center;
-  animation: rotateDashedHUD 60s linear infinite;
+  animation: vortexRotateDashed 120s linear infinite;
 }
 
-@keyframes rotateDashedHUD {
+@keyframes vortexRotateDashed {
   from {
     transform: rotate(0deg);
   }
@@ -187,336 +114,276 @@
   }
 }
 
-/* Círculo interior con borde sólido (estático para perfecta lectura) */
-.vortex-circle-inner-solid {
+/* Círculo interior con borde sólido fino */
+.vortex-circle-inner {
   position: relative;
-  width: 74%;
-  height: 74%;
+  width: 72%;
+  height: 72%;
   border-radius: 50%;
-  border: 2px solid var(--vx-color-neon);
-  background: radial-gradient(
-    circle at 50% 50%, 
-    rgba(38, 33, 73, 0.88) 0%, 
-    rgba(27, 29, 38, 0.96) 74%, 
-    rgba(14, 15, 22, 0.99) 100%
-  );
-  box-shadow: 
-    0 0 35px rgba(182, 245, 50, 0.25),
-    inset 0 0 30px rgba(182, 245, 50, 0.12),
-    0 20px 50px rgba(0, 0, 0, 0.75);
+  border: 1.5px solid var(--vx-color-neon);
+  background-color: var(--vx-color-bg-solid);
+  background-image: none;
+  box-shadow: none !important; /* Cero glow pesado */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem;
-  box-sizing: border-box;
-  z-index: 5;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  z-index: 3;
 }
 
-/* Área segura de contenido dentro del círculo interior */
-.vortex-hud-form-area {
-  width: 82%;
-  max-width: 300px;
+/* ==========================================================================
+   3. CONTENIDO CENTRAL (FORMULARIO Y CAMPOS MINIMALISTAS)
+   ========================================================================== */
+.vortex-central-content {
+  width: 84%;
+  max-width: 290px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  box-sizing: border-box;
 }
 
-/* ==========================================================================
-   2. CONTENIDO CENTRAL (FORMULARIO Y TIPOGRAFÍA)
-   ========================================================================== */
-.vortex-hud-login-title {
-  margin: 0 0 clamp(0.75rem, 1.8vh, 1.25rem) 0;
-  font-family: var(--vx-font-mono);
-  font-size: clamp(1.3rem, 2.3vw, 1.7rem);
+/* Título dentro del círculo: Iniciar Sesión */
+.vortex-form-title {
+  margin: 0 0 clamp(0.75rem, 1.8vh, 1.3rem) 0;
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   color: var(--vx-color-white);
   text-align: center;
   white-space: nowrap;
 }
 
 /* Formulario minimalista */
-.vortex-hud-form {
+.vortex-minimal-form {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.75rem, 1.4vh, 1.1rem);
+  gap: clamp(0.65rem, 1.4vh, 1rem);
 }
 
-.vortex-minimal-field {
+.vortex-field-group {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
   text-align: left;
-  position: relative;
-  width: 100%;
 }
 
-.vortex-minimal-label {
-  font-family: var(--vx-font-mono);
+.vortex-field-label {
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--vx-color-white);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   margin-bottom: 0.25rem;
-  padding-left: 2px;
 }
 
-.vortex-minimal-input {
+/* Inputs extremadamente minimalistas: sin cajas de fondo */
+.vortex-clean-input {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1.5px solid rgba(182, 245, 50, 0.38);
-  border-radius: 0;
-  padding: 0.45rem 0.25rem;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1.5px solid var(--vx-color-input-border) !important;
+  border-radius: 0 !important;
+  padding: 0.4rem 0.2rem;
   color: var(--vx-color-white);
-  font-family: var(--vx-font-mono);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   outline: none;
-  transition: all 0.25s ease;
-  box-sizing: border-box;
+  box-shadow: none !important;
+  transition: border-bottom-color 0.2s ease;
 }
 
-.vortex-minimal-input::placeholder {
-  color: rgba(176, 183, 245, 0.45);
+.vortex-clean-input:focus {
+  border-bottom-color: var(--vx-color-neon) !important;
+}
+
+.vortex-clean-input::placeholder {
+  color: var(--vx-color-placeholder);
   font-size: 0.82rem;
 }
 
-.vortex-minimal-input:focus {
-  border-bottom-color: var(--vx-color-neon);
-  box-shadow: 0 2px 10px rgba(182, 245, 50, 0.4);
-}
-
-.vortex-minimal-input:disabled {
-  opacity: 0.55;
+.vortex-clean-input:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Fila de Contraseña con Botón Toggle discreto */
-.vortex-password-input-row {
+/* Fila de Contraseña con toggle discreto */
+.vortex-input-with-action {
   position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
-  width: 100%;
 }
 
-.vortex-password-input {
+.vortex-password-clean-input {
   padding-right: 2rem;
 }
 
-.vortex-password-toggle-btn {
+.vortex-pw-toggle-btn {
   position: absolute;
   right: 2px;
   bottom: 6px;
-  background: transparent;
-  border: none;
+  background: transparent !important;
+  border: none !important;
   color: var(--vx-color-neon);
-  opacity: 0.75;
   cursor: pointer;
-  padding: 4px;
+  padding: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s, transform 0.2s;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+  box-shadow: none !important;
 }
 
-.vortex-password-toggle-btn:hover:not(:disabled) {
+.vortex-pw-toggle-btn:hover:not(:disabled) {
   opacity: 1;
-  transform: scale(1.12);
 }
 
-.vortex-password-toggle-btn:disabled {
+.vortex-pw-toggle-btn:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
-  opacity: 0.35;
 }
 
-/* Botón de Envío del Formulario (HUD Neón) */
-.vortex-hud-submit-btn {
+/* Botón Minimalista de Envío */
+.vortex-minimal-submit-btn {
   width: 100%;
   margin-top: 0.5rem;
-  padding: 0.68rem 1.2rem;
+  padding: 0.65rem 1rem;
   background: transparent;
   border: 1.5px solid var(--vx-color-neon);
-  border-radius: 6px;
+  border-radius: 4px;
   color: var(--vx-color-neon);
-  font-family: var(--vx-font-mono);
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
-  box-shadow: 
-    0 0 14px rgba(182, 245, 50, 0.2),
-    inset 0 0 10px rgba(182, 245, 50, 0.08);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.2s ease, color 0.2s ease;
   outline: none;
+  box-shadow: none;
 }
 
-.vortex-hud-submit-btn:hover:not(:disabled) {
-  background: var(--vx-color-neon);
-  color: #12131b;
-  box-shadow: 
-    0 0 25px rgba(182, 245, 50, 0.65),
-    0 0 45px rgba(182, 245, 50, 0.35);
-  transform: translateY(-1px);
+.vortex-minimal-submit-btn:hover:not(:disabled) {
+  background-color: var(--vx-color-neon);
+  color: #000000;
 }
 
-.vortex-hud-submit-btn:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 0 0 12px rgba(182, 245, 50, 0.4);
+.vortex-minimal-submit-btn:active:not(:disabled) {
+  opacity: 0.85;
 }
 
-.vortex-hud-submit-btn:disabled {
-  opacity: 0.55;
+.vortex-minimal-submit-btn:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
-.vortex-hud-submit-btn.is-loading {
+.vortex-minimal-submit-btn.is-loading {
   border-color: rgba(182, 245, 50, 0.6);
   color: var(--vx-color-neon);
   background: rgba(182, 245, 50, 0.08);
 }
 
-/* Spinner animado */
-.vortex-hud-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(182, 245, 50, 0.3);
-  border-top-color: var(--vx-color-neon);
-  border-radius: 50%;
-  animation: hudSpin 0.75s linear infinite;
-}
-
-@keyframes hudSpin {
-  to { transform: rotate(360deg); }
-}
-
-/* Alertas de Error y Éxito */
+/* Alertas de Error y Éxito estilo terminal */
 .vortex-hud-alert {
   width: 100%;
-  font-family: var(--vx-font-mono);
-  font-size: 0.74rem;
-  line-height: 1.3;
-  padding: 0.4rem 0.65rem;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  padding: 0.35rem 0.6rem;
+  margin-bottom: 0.6rem;
   text-align: center;
-  box-sizing: border-box;
-  animation: alertFadeIn 0.25s ease-out;
+  border-radius: 3px;
+  box-shadow: none;
 }
 
 .vortex-hud-alert-error {
-  color: #ff8fa5;
-  background: var(--vx-danger-bg);
-  border: 1px solid var(--vx-danger-border);
-  box-shadow: 0 0 12px rgba(255, 51, 102, 0.3);
+  color: var(--vx-color-danger);
+  background: transparent;
+  border: 1px dashed var(--vx-color-danger);
 }
 
 .vortex-hud-alert-success {
-  color: #12131b;
-  background: var(--vx-color-neon);
+  color: var(--vx-color-neon);
+  background: transparent;
   border: 1px solid var(--vx-color-neon);
-  font-weight: 700;
-  box-shadow: 0 0 16px rgba(182, 245, 50, 0.5);
-}
-
-@keyframes alertFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ==========================================================================
-   3. ADICIONES: OPCIÓN DE REGISTRO DISCRETA EN LA PARTE INFERIOR
+   4. ADICIÓN FUERA DEL MOCKUP: OPCIÓN DE REGISTRO EN LA PARTE INFERIOR
    ========================================================================== */
-.vortex-bottom-register {
-  position: relative;
-  z-index: 10;
-  margin-top: clamp(1rem, 2.5vh, 2rem);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-family: var(--vx-font-mono);
-  font-size: 0.85rem;
-  color: var(--vx-color-lavender);
+.vortex-bottom-footer {
+  margin: clamp(0.75rem, 2vh, 1.8rem) 0 0 0;
+  text-align: center;
+  z-index: 2;
 }
 
-.vortex-register-text {
-  opacity: 0.9;
-}
-
-.vortex-register-link-btn {
+.vortex-crear-cuenta-btn {
   background: transparent;
   border: none;
   color: var(--vx-color-neon);
-  font-family: inherit;
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  padding: 0.2rem 0.4rem;
+  padding: 0.3rem 0.6rem;
   text-decoration: underline;
   text-underline-offset: 4px;
-  text-decoration-color: rgba(182, 245, 50, 0.45);
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
+  outline: none;
+  box-shadow: none;
 }
 
-.vortex-register-link-btn:hover {
+.vortex-crear-cuenta-btn:hover {
   color: #FFFFFF;
-  text-shadow: 0 0 10px var(--vx-color-neon);
-  text-decoration-color: var(--vx-color-neon);
 }
 
-.vortex-register-link-btn:focus-visible {
-  outline: 2px solid var(--vx-color-neon);
+.vortex-crear-cuenta-btn:focus-visible {
+  outline: 1.5px dashed var(--vx-color-neon);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 /* ==========================================================================
-   RESPONSIVIDAD Y ADAPTACIÓN EN DISPOSITIVOS MÓVILES
+   RESPONSIVIDAD Y PANTALLAS PEQUEÑAS
    ========================================================================== */
-@media (max-width: 520px) {
-  .vortex-hud-system {
+@media (max-width: 480px) {
+  .vortex-circles-system {
     width: 90vw;
     height: 90vw;
   }
 
-  .vortex-circle-inner-solid {
-    width: 80%;
-    height: 80%;
-    padding: 0.85rem;
+  .vortex-circle-inner {
+    width: 78%;
+    height: 78%;
+    padding: 0.75rem;
   }
 
-  .vortex-hud-form-area {
-    width: 88%;
-    max-width: 270px;
+  .vortex-central-content {
+    width: 90%;
+    max-width: 260px;
   }
 
-  .vortex-hud-login-title {
-    font-size: 1.25rem;
-    margin-bottom: 0.65rem;
+  .vortex-form-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.6rem;
   }
 
-  .vortex-minimal-input {
+  .vortex-clean-input {
     font-size: 0.85rem;
-    padding: 0.35rem 0.2rem;
+    padding: 0.3rem 0.15rem;
   }
 
-  .vortex-hud-submit-btn {
-    padding: 0.6rem 0.9rem;
-    font-size: 0.82rem;
+  .vortex-minimal-submit-btn {
+    padding: 0.55rem 0.8rem;
+    font-size: 0.8rem;
   }
 
-  .vortex-main-brand-title {
-    font-size: 2.3rem;
+  .vortex-brand-title {
+    font-size: 2.2rem;
   }
 }
 
@@ -534,8 +401,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  font-family: var(--vx-font-main);
-  background-color: var(--vx-color-bg);
+  font-family: var(--vx-font-intel);
+  background-color: #1B1D26;
   background-image: 
     radial-gradient(circle at 50% 50%, rgba(38, 33, 73, 0.45) 0%, rgba(27, 29, 38, 0.95) 68%, #0d0e14 100%),
     linear-gradient(180deg, #12131b 0%, #1B1D26 50%, #0d0e14 100%);
@@ -587,7 +454,7 @@
   border-radius: 50%;
   border: 2px dashed var(--vx-color-neon);
   box-shadow: 0 0 25px rgba(182, 245, 50, 0.25);
-  animation: rotateDashedHUD 60s linear infinite;
+  animation: vortexRotateDashed 60s linear infinite;
   pointer-events: none;
 }
 
@@ -696,7 +563,7 @@
   border: none;
   outline: none;
   color: var(--vx-color-white);
-  font-family: var(--vx-font-mono);
+  font-family: var(--vx-font-intel);
   font-size: 0.88rem;
 }
 
@@ -719,7 +586,7 @@
   border: 1.5px solid var(--vx-color-neon);
   border-radius: 8px;
   color: var(--vx-color-neon);
-  font-family: var(--vx-font-mono);
+  font-family: var(--vx-font-intel);
   font-size: 0.9rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -745,7 +612,7 @@
   border: 2px solid rgba(182, 245, 50, 0.3);
   border-top-color: var(--vx-color-neon);
   border-radius: 50%;
-  animation: hudSpin 0.75s linear infinite;
+  animation: vortexRotateDashed 0.75s linear infinite;
 }
 
 .login-footer-text {
@@ -754,7 +621,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  font-family: var(--vx-font-mono);
+  font-family: var(--vx-font-intel);
 }
 
 .btn-link-register {
