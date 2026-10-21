@@ -52,15 +52,7 @@ export default function MainMenu({
       {/* Capa de viñeta ambiental sutil para realzar el contraste de la interfaz */}
       <div className="vortex-vignette-overlay" aria-hidden="true" />
 
-      {/* Chip de estado y piloto en el HUD superior */}
-      <header className="vortex-top-hud" aria-label="Estado del sistema">
-        <div className="vortex-pilot-status-chip">
-          <span className="pilot-chip-dot" aria-hidden="true" />
-          <span className="pilot-chip-callsign">
-            {user?.username ? `PILOTO // ${user.username.toUpperCase()}` : 'SISTEMA VORTEX // EN LÍNEA'}
-          </span>
-        </div>
-      </header>
+
 
       {/* ===================================================================
           1. NODO INTERACTIVO: ALINEADO CON EL PUÑO

@@ -8,7 +8,11 @@
      - #F3F3EE (Blanco Roto / Texto principal)
      - #262149 (Índigo Oscuro / Fondo de tarjetas de opciones)
      - #B6F532 (Verde Lima Neón de Acento)
+   Tipografía Oficial (Mockups/tipografia.txt):
+     - Intel One Mono
    ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
   --vx-color-bg: #1B1D26;
@@ -25,8 +29,19 @@
   --vx-card-bg: rgba(38, 33, 73, 0.82);
   --vx-card-border: rgba(176, 183, 245, 0.28);
   
-  --vx-font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --vx-font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --vx-font-main: 'Intel One Mono', monospace;
+  --vx-font-mono: 'Intel One Mono', monospace;
+}
+
+/* Tipografía Intel One Mono aplicada a todos los elementos del menú principal */
+.vortex-mainmenu-container,
+.vortex-mainmenu-container *,
+.vortex-mainmenu-container button,
+.vortex-mainmenu-container h1,
+.vortex-mainmenu-container p,
+.vortex-mainmenu-container span,
+.vortex-mainmenu-container text {
+  font-family: 'Intel One Mono', monospace !important;
 }
 
 /* ==========================================================================
