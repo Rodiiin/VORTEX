@@ -79,246 +79,176 @@
 }
 
 /* ==========================================================================
-   HUD SUPERIOR (PILOTO Y ESTADO DEL SISTEMA)
+   2. NODOS INTERACTIVOS (ANILLO + LÍNEA + TEXTO)
+   Cada ".node-wrapper" es un <button> cuyo centro coincide con la
+   articulación del boxeador. El propio wrapper es el hitbox: es más grande
+   que el anillo visible para que sea cómodo de apuntar aunque el texto
+   esté oculto.
    ========================================================================== */
-.vortex-top-hud {
+.node-wrapper {
+  /* Variables de geometría del nodo (ajustables por nodo) */
+  --node-hitbox: 76px;
+  --node-ring-size: 30px;
+  --node-line-length: 90px;
+  --node-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
   position: absolute;
-  top: clamp(1.2rem, 3vh, 2.5rem);
-  right: clamp(1.5rem, 4vw, 3.5rem);
   z-index: 10;
-  display: flex;
-  align-items: center;
-}
-
-.vortex-pilot-status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.45rem 1rem;
-  background: rgba(38, 33, 73, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(176, 183, 245, 0.25);
-  border-radius: 999px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-}
-
-.pilot-chip-dot {
-  width: 7px;
-  height: 7px;
+  width: var(--node-hitbox);
+  height: var(--node-hitbox);
+  margin: 0;
+  padding: 0;
+  border: none;
   border-radius: 50%;
-  background-color: var(--vx-color-neon);
-  box-shadow: 0 0 8px var(--vx-color-neon);
-  animation: pulseNeonDot 2.2s ease-in-out infinite;
-}
-
-.pilot-chip-callsign {
-  font-family: var(--vx-font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--vx-color-lavender);
-}
-
-/* ==========================================================================
-   2. CAPA DE INTERFAZ (UI OVERLAY) - POSICIONAMIENTO ABSOLUTO
-   ========================================================================== */
-.vortex-hud-node {
-  position: absolute;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* --------------------------------------------------------------------------
-   NODO 1: PUÑO (Impacto / Misión principal)
-   Coordenada centrada con el guante izquierdo del boxeador
-   -------------------------------------------------------------------------- */
-.node-punch {
-  top: 36%;
-  left: 19%;
-}
-
-/* --------------------------------------------------------------------------
-   NODO 2: CODO (Ajustes y configuración)
-   Coordenada centrada con la articulación del codo del brazo extendido
-   -------------------------------------------------------------------------- */
-.node-elbow {
-  top: 30%;
-  left: 44%;
-}
-
-/* --------------------------------------------------------------------------
-   NODO 3: CINTURA (Cierre de sesión)
-   Coordenada centrada con la franja del cinturón en la cintura
-   -------------------------------------------------------------------------- */
-.node-waist {
-  top: 72%;
-  left: 78%;
-}
-
-/* ==========================================================================
-   3. ELEMENTOS DECORATIVOS: CÍRCULOS Y LÍNEAS VECTORIALES DE CONEXIÓN (SVG)
-   ========================================================================== */
-.hud-connector-wrapper {
-  position: absolute;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Posicionamiento específico del conector de cada nodo */
-.node-punch .hud-connector-wrapper {
-  right: calc(100% - 2px);
-  top: 50%;
-  transform: translateY(-35px);
-  width: 110px;
-  height: 130px;
-}
-
-.node-elbow .hud-connector-wrapper {
-  right: calc(100% - 2px);
-  top: 50%;
-  transform: translateY(-30px);
-  width: 140px;
-  height: 210px;
-}
-
-.node-waist .hud-connector-wrapper {
-  right: calc(100% - 2px);
-  top: 50%;
-  transform: translateY(-35px);
-  width: 100px;
-  height: 125px;
-}
-
-.hud-connector-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  filter: drop-shadow(0 0 4px var(--vx-neon-subtle));
-  transition: filter 0.3s ease;
-}
-
-.hud-connector-line {
-  stroke: var(--vx-color-neon);
-  stroke-width: 1.5;
-  transition: stroke-width 0.25s ease, filter 0.25s ease;
-}
-
-.hud-radar-spin {
-  transform-origin: center;
-  animation: radarSpin 10s linear infinite;
-}
-
-/* Realce dinámico del conector al pasar el cursor sobre el nodo */
-.vortex-hud-node:hover .hud-connector-svg {
-  filter: drop-shadow(0 0 10px var(--vx-neon-glow));
-}
-
-.vortex-hud-node:hover .hud-connector-line {
-  stroke-width: 2.2;
-}
-
-/* ==========================================================================
-   BOTONES INTERACTIVOS (REACT BUTTONS) CON EFECTO HOVER SUTIL
-   ========================================================================== */
-.vortex-interactive-btn {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0.95rem 1.65rem;
-  background: var(--vx-card-bg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1.5px solid var(--vx-card-border);
-  border-radius: 12px;
+  background: transparent;
   cursor: pointer;
-  outline: none;
-  text-align: left;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 
-    0 10px 25px rgba(0, 0, 0, 0.5),
-    inset 0 0 15px rgba(101, 84, 217, 0.12);
-  font-family: var(--vx-font-main);
-  color: var(--vx-color-white);
+  /* El punto (top, left) es el centro del anillo */
+  transform: translate(-50%, -50%);
   -webkit-tap-highlight-color: transparent;
 }
 
-.vortex-interactive-btn:focus-visible {
-  outline: 2px solid var(--vx-color-neon);
-  outline-offset: 4px;
+.node-wrapper:focus {
+  outline: none;
 }
 
-/* Efecto Hover Sutil con el color de acento neón (#B6F532) */
-.vortex-interactive-btn:hover {
-  border-color: var(--vx-color-neon);
-  background: rgba(38, 33, 73, 0.95);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.65),
-    0 0 24px var(--vx-neon-glow),
-    inset 0 0 18px var(--vx-neon-subtle);
+/* --------------------------------------------------------------------------
+   COORDENADAS DE CADA NODO
+   Se conservan las posiciones de las retículas del diseño anterior.
+   -------------------------------------------------------------------------- */
+/* Puño: guante izquierdo del boxeador */
+.node-punch {
+  top: calc(36% + 117px);
+  left: calc(19% - 88px);
 }
 
-.vortex-interactive-btn:active {
-  transform: translateY(1px) scale(0.99);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+/* Codo: articulación del brazo extendido */
+.node-elbow {
+  top: calc(30% + 192px);
+  left: calc(44% - 118px);
 }
 
-/* Estilo individual para "Nueva Partida / Continuar Partida" (Mayor prominencia) */
-.btn-action-punch {
-  border-color: rgba(182, 245, 50, 0.45);
-  box-shadow: 
-    0 10px 25px rgba(0, 0, 0, 0.55),
-    0 0 18px rgba(182, 245, 50, 0.18);
+/* Cintura: franja del cinturón (línea más corta para no salirse de pantalla) */
+.node-waist {
+  --node-line-length: 56px;
+  top: calc(72% + 102px);
+  left: calc(78% - 53px);
 }
 
-/* Tag / Etiqueta del botón en el HUD */
-.btn-hud-tag {
-  font-family: var(--vx-font-mono);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--vx-color-neon);
-  text-transform: uppercase;
-  margin-bottom: 0.3rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+/* --------------------------------------------------------------------------
+   ESTADO NORMAL (REPOSO): solo el anillo fino es visible
+   -------------------------------------------------------------------------- */
+.node-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--node-ring-size);
+  height: var(--node-ring-size);
+  box-sizing: border-box;
+  border: 1.5px solid rgba(243, 243, 238, 0.85);
+  border-radius: 50%;
+  background-color: transparent;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition:
+    border-color 0.3s ease,
+    border-width 0.3s var(--node-ease),
+    background-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s var(--node-ease);
 }
 
-/* Rótulo de texto del botón */
-.btn-main-label {
-  font-size: clamp(1.02rem, 1.25vw, 1.18rem);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--vx-color-white);
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
+/* Línea vertical: nace en el borde inferior del anillo con altura 0 */
+.node-line {
+  position: absolute;
+  top: calc(50% + var(--node-ring-size) / 2);
+  left: 50%;
+  width: 2px;
+  height: 0;
+  background-color: var(--vx-color-neon);
+  box-shadow: 0 0 8px var(--vx-neon-glow);
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: height 0.2s ease;
+}
+
+/* Remate de la línea: pequeño punto en el extremo inferior */
+.node-line::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--vx-color-neon);
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+/* Texto de la opción: al final de la línea, a su derecha.
+   Visible en reposo de forma sutil y traslúcida para orientar al usuario;
+   al ser visible, también forma parte del área clickeable. */
+.node-label {
+  position: absolute;
+  top: calc(50% + var(--node-ring-size) / 2 + var(--node-line-length));
+  left: calc(50% + 14px);
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-align: left;
   white-space: nowrap;
+  color: var(--vx-color-white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+  opacity: 0.4;
+  transform: translateY(-0.62em);
+  transition:
+    color 0.3s ease,
+    opacity 0.3s ease,
+    text-shadow 0.3s ease;
 }
 
-.btn-main-label-split {
-  white-space: normal;
-  line-height: 1.25;
+/* --------------------------------------------------------------------------
+   ESTADO HOVER / FOCUS (teclado): anillo neón, línea que crece, texto visible
+   -------------------------------------------------------------------------- */
+.node-wrapper:hover .node-ring,
+.node-wrapper:focus-visible .node-ring {
+  border-color: var(--vx-color-neon);
+  border-width: 4px;
+  background-color: rgba(182, 245, 50, 0.22);
+  box-shadow:
+    0 0 14px var(--vx-neon-glow),
+    inset 0 0 8px var(--vx-neon-subtle);
+  transform: translate(-50%, -50%) scale(1.12);
 }
 
-.btn-text-split {
-  display: inline-block;
-  line-height: 1.25;
+.node-wrapper:hover .node-line,
+.node-wrapper:focus-visible .node-line {
+  height: var(--node-line-length);
+  transition: height 0.4s var(--node-ease);
 }
 
-.btn-arrow-icon {
+.node-wrapper:hover .node-line::after,
+.node-wrapper:focus-visible .node-line::after {
+  opacity: 1;
+  transition: opacity 0.2s ease 0.3s;
+}
+
+/* El texto pasa de traslúcido a neón opaco mientras la línea se despliega */
+.node-wrapper:hover .node-label,
+.node-wrapper:focus-visible .node-label {
   color: var(--vx-color-neon);
-  font-size: 1.1rem;
-  transition: transform 0.25s ease;
+  opacity: 1;
+  text-shadow: 0 0 12px var(--vx-neon-glow), 0 2px 8px rgba(0, 0, 0, 0.85);
+  transition:
+    color 0.3s ease 0.1s,
+    opacity 0.3s ease 0.1s,
+    text-shadow 0.3s ease 0.1s;
 }
 
-.vortex-interactive-btn:hover .btn-arrow-icon {
-  transform: translateX(5px);
+.node-wrapper:active .node-ring {
+  transform: translate(-50%, -50%) scale(0.95);
 }
 
 /* ==========================================================================
@@ -381,18 +311,10 @@
   opacity: 0.9;
 }
 
+
 /* ==========================================================================
    ANIMACIONES
    ========================================================================== */
-@keyframes radarSpin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @keyframes pulseNeonDot {
   0%, 100% {
     opacity: 1;
@@ -407,59 +329,26 @@
 }
 
 /* ==========================================================================
-   ADAPTABILIDAD RESPONSIVA (PANTALLAS MEDIANAS Y PEQUEÑAS)
+   ADAPTABILIDAD RESPONSIVA Y ACCESIBILIDAD
    ========================================================================== */
 @media (max-width: 1100px) {
   .node-punch {
-    top: 34%;
-    left: 14%;
+    top: calc(34% + 117px);
+    left: calc(14% - 88px);
   }
 
   .node-elbow {
-    top: 26%;
-    left: 44%;
+    top: calc(26% + 192px);
+    left: calc(44% - 118px);
   }
 
   .node-waist {
-    top: 68%;
-    left: 70%;
+    top: calc(68% + 102px);
+    left: calc(70% - 53px);
   }
 }
 
 @media (max-width: 820px) {
-  .vortex-mainmenu-container {
-    overflow-y: auto;
-  }
-
-  /* En pantallas móviles se compactan las líneas decorativas */
-  .hud-connector-wrapper {
-    display: none;
-  }
-
-  .node-punch {
-    top: 20%;
-    left: 8%;
-  }
-
-  .node-elbow {
-    top: 36%;
-    left: 8%;
-  }
-
-  .node-waist {
-    top: 52%;
-    left: 8%;
-  }
-
-  .vortex-interactive-btn {
-    width: 280px;
-    padding: 0.85rem 1.25rem;
-  }
-
-  .btn-main-label {
-    font-size: 1rem;
-  }
-
   .vortex-brand-corner {
     bottom: 2rem;
     left: 2rem;
@@ -467,5 +356,36 @@
 
   .vortex-main-title {
     font-size: 3.5rem;
+  }
+}
+
+/* Dispositivos táctiles (sin hover): las opciones quedan siempre reveladas */
+@media (hover: none) {
+  .node-wrapper .node-ring {
+    border-color: var(--vx-color-neon);
+    border-width: 3px;
+  }
+
+  .node-wrapper .node-line {
+    height: var(--node-line-length);
+  }
+
+  .node-wrapper .node-line::after,
+  .node-wrapper .node-label {
+    opacity: 1;
+  }
+
+  .node-wrapper .node-label {
+    color: var(--vx-color-neon);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node-ring,
+  .node-line,
+  .node-line::after,
+  .node-label {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 }

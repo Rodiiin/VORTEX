@@ -1,0 +1,209 @@
+/* ==========================================================================
+   VORTEX - LEVELS COMPONENT STYLES ("Levels.css")
+   Pantalla de selección de niveles (Mockups/Imagenes UI/Levels.png).
+   Paleta: #000000 (fondo), #F3F3EE (texto), #B0B7F5 (puntuación),
+           #B6F532 (acento neón). Tipografía: Intel One Mono.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:wght@400;500;600;700&display=swap');
+
+.vortex-levels-container {
+  --lv-color-bg: #000000;
+  --lv-color-white: #F3F3EE;
+  --lv-color-lavender: #B0B7F5;
+  --lv-color-neon: #B6F532;
+  --lv-neon-glow: rgba(182, 245, 50, 0.4);
+  --lv-card-width: clamp(260px, 36vw, 520px);
+  --lv-card-gap: clamp(2.5rem, 9vw, 8rem);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: var(--lv-color-bg);
+  color: var(--lv-color-white);
+  font-family: 'Intel One Mono', monospace;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.vortex-levels-container * {
+  font-family: 'Intel One Mono', monospace;
+}
+
+/* ==========================================================================
+   CABECERA
+   ========================================================================== */
+.levels-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 8vh, 5.5rem) clamp(1rem, 2.5vw, 2.5rem) 0;
+}
+
+.levels-back-btn {
+  position: absolute;
+  left: clamp(1rem, 2.5vw, 2.5rem);
+  bottom: 0;
+  padding: 0.4rem 0;
+  border: none;
+  background: transparent;
+  color: var(--lv-color-neon);
+  font-size: clamp(0.9rem, 1.4vw, 1.25rem);
+  letter-spacing: 0.25em;
+  cursor: pointer;
+  transition: text-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.levels-back-btn:hover,
+.levels-back-btn:focus-visible {
+  text-shadow: 0 0 10px var(--lv-neon-glow);
+  outline: none;
+}
+
+.levels-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  /* Compensa el espacio de la última letra para centrar visualmente */
+  margin-right: -0.35em;
+  color: var(--lv-color-white);
+}
+
+/* ==========================================================================
+   CARRUSEL HORIZONTAL
+   ========================================================================== */
+.levels-carousel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--lv-card-gap);
+  /* Relleno lateral para que la primera y última tarjeta puedan centrarse */
+  padding: 0 calc(50vw - var(--lv-card-width) / 2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.levels-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.level-item {
+  flex: 0 0 var(--lv-card-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.5rem, 4vh, 2.5rem);
+  scroll-snap-align: center;
+}
+
+/* ==========================================================================
+   TARJETAS DE NIVEL
+   ========================================================================== */
+.level-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 526 / 512;
+  max-height: 58vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 3px solid var(--lv-color-white);
+  background: transparent;
+  color: var(--lv-color-white);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.level-card-name {
+  font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+  letter-spacing: 0.3em;
+  margin-right: -0.3em;
+  transition: color 0.3s ease;
+}
+
+.level-card-score {
+  position: absolute;
+  bottom: 21%;
+  font-size: clamp(0.8rem, 1.2vw, 1.1rem);
+  letter-spacing: 0.22em;
+  color: var(--lv-color-lavender);
+}
+
+.level-chapter {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+  letter-spacing: 0.3em;
+  margin-right: -0.3em;
+  color: var(--lv-color-white);
+  transition: color 0.3s ease;
+}
+
+/* Tarjeta interactiva (Tutorial) */
+.is-available .level-card {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.is-available .level-card:hover,
+.is-available .level-card:focus-visible {
+  border-color: var(--lv-color-neon);
+  box-shadow:
+    0 0 24px var(--lv-neon-glow),
+    inset 0 0 24px rgba(182, 245, 50, 0.12);
+  outline: none;
+}
+
+.is-available .level-card:hover .level-card-name,
+.is-available .level-card:focus-visible .level-card-name,
+.is-available:has(.level-card:hover) .level-chapter {
+  color: var(--lv-color-neon);
+}
+
+.is-available .level-card:active {
+  box-shadow: 0 0 12px var(--lv-neon-glow);
+}
+
+/* Placeholders inactivos (Niveles 1-3) */
+.is-locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   ADAPTABILIDAD Y ACCESIBILIDAD
+   ========================================================================== */
+@media (max-width: 640px) {
+  .vortex-levels-container {
+    --lv-card-width: 72vw;
+  }
+
+  .levels-header {
+    padding-top: 4.5rem;
+  }
+
+  .levels-back-btn {
+    top: 1.5rem;
+    bottom: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .levels-carousel {
+    scroll-behavior: auto;
+  }
+}

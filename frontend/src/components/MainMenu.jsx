@@ -7,12 +7,12 @@ import './MainMenu.css';
  * Reemplazo de menú principal basado en arte conceptual de Boxeador:
  *  - Fondo a pantalla completa usando 'frontend/src/assets/background-menu.png'.
  *  - Título "VORTEX" en la esquina inferior izquierda.
- *  - Botones interactivos con posición absoluta alineados con Puño, Codo y Cintura:
+ *  - Nodos interactivos con posición absoluta alineados con Puño, Codo y Cintura:
  *      * Puño: "Nueva Partida / Continuar Partida"
  *      * Codo: "Configuración"
  *      * Cintura: "Salir"
- *  - Retículas circulares y líneas de conexión vectoriales con color de acento neón (#B6F532).
- *  - Efectos hover sutiles e interactivos en todos los botones.
+ *  - En reposo solo se ven anillos finos; al hacer hover el anillo pasa a neón (#B6F532),
+ *    una línea vertical se despliega hacia abajo y se revela el texto de la opción.
  *
  * @param {Function} onStart - Callback para iniciar nueva partida (opcional)
  * @param {Function} onContinue - Callback para continuar partida existente (opcional)
@@ -55,126 +55,45 @@ export default function MainMenu({
 
 
       {/* ===================================================================
-          1. NODO INTERACTIVO: ALINEADO CON EL PUÑO
-          Opción: "Nueva Partida / Continuar Partida"
+          NODOS INTERACTIVOS (PUÑO, CODO, CINTURA)
+          Reposo: solo el anillo fino es visible.
+          Hover/Focus: el anillo se vuelve neón, la línea vertical crece
+          hacia abajo y se revela el texto de la opción (CSS puro).
           =================================================================== */}
-      <section 
-        className="vortex-hud-node node-punch"
-        aria-label="Acción de combate principal"
+      <button
+        type="button"
+        className="node-wrapper node-punch"
+        onClick={handlePlay}
+        aria-label="Nueva Partida o Continuar Partida"
       >
-        <div className="hud-connector-wrapper" aria-hidden="true">
-          <svg className="hud-connector-svg svg-punch" viewBox="0 0 110 130" fill="none">
-            {/* Retícula circular en el puño con pulso y rotación de radar */}
-            <circle cx="20" cy="105" r="4" fill="var(--vx-color-neon)" />
-            <circle cx="20" cy="105" r="9" stroke="var(--vx-color-neon)" strokeWidth="1.2" strokeDasharray="3 2" className="hud-radar-spin" />
-            <circle cx="20" cy="105" r="16" stroke="var(--vx-color-lavender)" strokeWidth="0.8" opacity="0.4" />
-            
-            {/* Línea fina de conexión hacia el botón */}
-            <path d="M 20 105 L 55 35 L 110 35" stroke="var(--vx-color-neon)" strokeWidth="1.5" className="hud-connector-line" />
-            <circle cx="108" cy="35" r="2.5" fill="var(--vx-color-neon)" />
-            
-            {/* Etiqueta táctica HUD */}
-            <text x="20" y="125" fill="var(--vx-color-lavender)" fontSize="8.5" letterSpacing="1" fontFamily="var(--vx-font-mono)">
-              LOC.01 // PUÑO
-            </text>
-          </svg>
-        </div>
+        <span className="node-ring" aria-hidden="true" />
+        <span className="node-line" aria-hidden="true" />
+        <span className="node-label">
+          Nueva Partida /<br />Continuar Partida
+        </span>
+      </button>
 
-        <button
-          type="button"
-          className="vortex-interactive-btn btn-action-punch"
-          onClick={handlePlay}
-          aria-label="Nueva Partida o Continuar Partida"
-        >
-          <span className="btn-hud-tag">01 // MISIÓN</span>
-          <span className="btn-main-label btn-main-label-split">
-            <span className="btn-text-split">
-              Nueva Partida /<br />Continuar Partida
-            </span>
-            <span className="btn-arrow-icon" aria-hidden="true">▸</span>
-          </span>
-        </button>
-      </section>
-
-      {/* ===================================================================
-          2. NODO INTERACTIVO: ALINEADO CON EL CODO
-          Opción: "Configuración"
-          =================================================================== */}
-      <section 
-        className="vortex-hud-node node-elbow"
-        aria-label="Configuración del juego"
+      <button
+        type="button"
+        className="node-wrapper node-elbow"
+        onClick={handleSettings}
+        aria-label="Abrir panel de configuración"
       >
-        <div className="hud-connector-wrapper" aria-hidden="true">
-          <svg className="hud-connector-svg svg-elbow" viewBox="0 0 140 210" fill="none">
-            {/* Retícula circular en el codo */}
-            <circle cx="20" cy="185" r="4" fill="var(--vx-color-neon)" />
-            <circle cx="20" cy="185" r="9" stroke="var(--vx-color-neon)" strokeWidth="1.2" strokeDasharray="3 2" className="hud-radar-spin" />
-            <circle cx="20" cy="185" r="16" stroke="var(--vx-color-lavender)" strokeWidth="0.8" opacity="0.4" />
-            
-            {/* Línea fina de conexión hacia el botón */}
-            <path d="M 20 185 L 75 30 L 140 30" stroke="var(--vx-color-neon)" strokeWidth="1.5" className="hud-connector-line" />
-            <circle cx="138" cy="30" r="2.5" fill="var(--vx-color-neon)" />
-            
-            {/* Etiqueta táctica HUD */}
-            <text x="20" y="205" fill="var(--vx-color-lavender)" fontSize="8.5" letterSpacing="1" fontFamily="var(--vx-font-mono)">
-              LOC.02 // CODO
-            </text>
-          </svg>
-        </div>
+        <span className="node-ring" aria-hidden="true" />
+        <span className="node-line" aria-hidden="true" />
+        <span className="node-label">Configuración</span>
+      </button>
 
-        <button
-          type="button"
-          className="vortex-interactive-btn btn-action-elbow"
-          onClick={handleSettings}
-          aria-label="Abrir panel de configuración"
-        >
-          <span className="btn-hud-tag">02 // SISTEMA</span>
-          <span className="btn-main-label">
-            <span>Configuración</span>
-            <span className="btn-arrow-icon" aria-hidden="true">▸</span>
-          </span>
-        </button>
-      </section>
-
-      {/* ===================================================================
-          3. NODO INTERACTIVO: ALINEADO CON LA CINTURA
-          Opción: "Salir"
-          =================================================================== */}
-      <section 
-        className="vortex-hud-node node-waist"
-        aria-label="Cierre de sesión"
+      <button
+        type="button"
+        className="node-wrapper node-waist"
+        onClick={handleExit}
+        aria-label="Cerrar sesión o salir del juego"
       >
-        <div className="hud-connector-wrapper" aria-hidden="true">
-          <svg className="hud-connector-svg svg-waist" viewBox="0 0 100 125" fill="none">
-            {/* Retícula circular en la cintura */}
-            <circle cx="45" cy="100" r="4" fill="var(--vx-color-neon)" />
-            <circle cx="45" cy="100" r="9" stroke="var(--vx-color-neon)" strokeWidth="1.2" strokeDasharray="3 2" className="hud-radar-spin" />
-            <circle cx="45" cy="100" r="16" stroke="var(--vx-color-lavender)" strokeWidth="0.8" opacity="0.4" />
-            
-            {/* Línea fina de conexión hacia el botón */}
-            <path d="M 45 100 L 45 35 L 90 35" stroke="var(--vx-color-neon)" strokeWidth="1.5" className="hud-connector-line" />
-            <circle cx="88" cy="35" r="2.5" fill="var(--vx-color-neon)" />
-            
-            {/* Etiqueta táctica HUD */}
-            <text x="45" y="120" textAnchor="middle" fill="var(--vx-color-lavender)" fontSize="8.5" letterSpacing="1" fontFamily="var(--vx-font-mono)">
-              LOC.03 // CINTURA
-            </text>
-          </svg>
-        </div>
-
-        <button
-          type="button"
-          className="vortex-interactive-btn btn-action-waist"
-          onClick={handleExit}
-          aria-label="Cerrar sesión o salir del juego"
-        >
-          <span className="btn-hud-tag">03 // TERMINAL</span>
-          <span className="btn-main-label">
-            <span>Salir</span>
-            <span className="btn-arrow-icon" aria-hidden="true">▸</span>
-          </span>
-        </button>
-      </section>
+        <span className="node-ring" aria-hidden="true" />
+        <span className="node-line" aria-hidden="true" />
+        <span className="node-label">Salir</span>
+      </button>
 
       {/* ===================================================================
           TÍTULO PRINCIPAL "VORTEX" EN LA ESQUINA INFERIOR IZQUIERDA

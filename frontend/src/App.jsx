@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Register from './components/Register';
 import MainMenu from './components/MainMenu';
+import Levels from './components/Levels';
 import Calibration from './components/Calibration';
 import GameEngine from './components/GameEngine';
 
 export default function App() {
-  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'calibration' | 'game'
+  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'levels' | 'calibration' | 'game'
   const [currentView, setCurrentView] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
   const [calibrationData, setCalibrationData] = useState(null);
@@ -67,14 +68,22 @@ export default function App() {
       {currentView === 'menu' && (
         <MainMenu
           user={currentUser}
-          onStart={() => setCurrentView('calibration')}
-          onContinue={() => setCurrentView('calibration')}
+          onStart={() => setCurrentView('levels')}
+          onContinue={() => setCurrentView('levels')}
           onSettings={() => console.log('Ajustes seleccionados')}
           onExit={handleLogout}
         />
       )}
 
-      {/* VISTA 4: CALIBRACIÓN BIOMECÁNICA PRE-PARTIDA */}
+      {/* VISTA 4: SELECCIÓN DE NIVELES (solo el Tutorial lleva a calibración) */}
+      {currentView === 'levels' && (
+        <Levels
+          onBack={() => setCurrentView('menu')}
+          onSelectLevel={() => setCurrentView('calibration')}
+        />
+      )}
+
+      {/* VISTA 5: CALIBRACIÓN BIOMECÁNICA PRE-PARTIDA */}
       {currentView === 'calibration' && (
         <Calibration
           onCalibrationComplete={handleCalibrationComplete}
@@ -82,7 +91,7 @@ export default function App() {
         />
       )}
 
-      {/* VISTA 5: MOTOR DE JUEGO (GAME ENGINE PLACEHOLDER) */}
+      {/* VISTA 6: MOTOR DE JUEGO (GAME ENGINE PLACEHOLDER) */}
       {currentView === 'game' && (
         <GameEngine
           calibrationData={calibrationData}
