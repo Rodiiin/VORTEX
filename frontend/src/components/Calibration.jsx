@@ -7,11 +7,51 @@ import {
   getTorsoCenter,
   drawCyberSkeleton
 } from '../utils/poseMath';
+import guanteIzq from '../assets/guante-izq.png';
+import guanteDer from '../assets/guante-der.png';
 import './Calibration.css';
 
 // Resolución resiliente de constructores MediaPipe en entornos Vite / ESM
 const PoseConstructor = mpPose.Pose || (mpPose.default && mpPose.default.Pose) || window.Pose;
 const CameraConstructor = mpCamera.Camera || (mpCamera.default && mpCamera.default.Camera) || window.Camera;
+
+// =========================================================================
+// GUANTES EN PRIMERA PERSONA
+// Las imágenes de los guantes (1440x1024) tienen margen transparente; el
+// ancla es la posición del puño dentro de la imagen (fracción 0-1). La
+// muñeca detectada se coloca sobre ese punto.
+// =========================================================================
+const GLOVE_ANCHORS = {
+  left: { x: 0.52, y: 0.2 },
+  right: { x: 0.375, y: 0.225 },
+};
+
+// Posición de guardia por defecto (normalizada) antes de detectar al usuario
+const GLOVE_REST = {
+  left: { nx: 0.36, ny: 0.72, scale: 1 },
+  right: { nx: 0.64, ny: 0.72, scale: 1 },
+};
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+// Etiquetas de cada fase para el panel HUD
+const PHASES = [
+  { id: 0, label: 'Detección' },
+  { id: 1, label: 'Neutro' },
+  { id: 2, label: 'Jab' },
+  { id: 3, label: 'Gancho' },
+  { id: 4, label: 'Esquiva' },
+  { id: 5, label: 'Listo' },
+];
+
+const PHASE_TITLES = {
+  0: 'Detección de presencia',
+  1: 'Posición neutra',
+  2: 'Calibrar Jab',
+  3: 'Calibrar Gancho',
+  4: 'Calibrar Esquiva',
+  5: 'Calibración completada',
+};
 
 /**
  * Componente de Calibración Biomecánica - VORTEX Exergame
@@ -80,6 +120,27 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
   const cameraInstanceRef = useRef(null);
   const poseInstanceRef = useRef(null);
 
+  // Guantes: elementos <img> y última posición normalizada de cada mano
+  const leftGloveRef = useRef(null);
+  const rightGloveRef = useRef(null);
+  const glovePoseRef = useRef({
+    left: { ...GLOVE_REST.left },
+    right: { ...GLOVE_REST.right },
+  });
+
+  // Escribe el transform directamente en el DOM (sin re-render de React a 30 FPS)
+  const applyGloveTransform = (side) => {
+    const el = side === 'left' ? leftGloveRef.current : rightGloveRef.current;
+    if (!el) return;
+
+    const { nx, ny, scale } = glovePoseRef.current[side];
+    const anchor = GLOVE_ANCHORS[side];
+    const x = nx * window.innerWidth - anchor.x * el.offsetWidth;
+    const y = ny * window.innerHeight - anchor.y * el.offsetHeight;
+
+    el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+  };
+
   // Sincronizar stepRef con el cambio de paso desde UI
   const setStep = (newStep) => {
     console.log(`[VORTEX] Transición de paso: ${stepRef.current} -> ${newStep}`);
@@ -105,6 +166,17 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
       isCapturingRef.current = false;
     }
   };
+
+  // Colocar los guantes en guardia al montar y recolocarlos al redimensionar
+  useEffect(() => {
+    const placeGloves = () => {
+      applyGloveTransform('left');
+      applyGloveTransform('right');
+    };
+    placeGloves();
+    window.addEventListener('resize', placeGloves);
+    return () => window.removeEventListener('resize', placeGloves);
+  }, []);
 
   // =========================================================================
   // CICLO DE VIDA: INICIALIZACIÓN ÚNICA DE MEDIAPIPE Y CÁMARA (DEPENDENCIAS [])
@@ -190,6 +262,27 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
         }
         return;
       }
+
+      // =====================================================================
+      // MAPEO MUÑECAS -> GUANTES (Landmarks 15 y 16)
+      // Modo espejo: la mano izquierda del usuario se ve a la izquierda.
+      // La Z de la muñeca relativa al hombro simula profundidad: al golpear
+      // hacia la cámara el guante crece.
+      // =====================================================================
+      [
+        { side: 'left', wrist: poseLandmarks[15], shoulder: poseLandmarks[11] },
+        { side: 'right', wrist: poseLandmarks[16], shoulder: poseLandmarks[12] },
+      ].forEach(({ side, wrist, shoulder }) => {
+        if (!wrist || (wrist.visibility ?? 0) < 0.3) return;
+
+        const depth = shoulder ? wrist.z - shoulder.z : 0;
+        glovePoseRef.current[side] = {
+          nx: clamp(1 - wrist.x, 0, 1),
+          ny: clamp(wrist.y, 0, 1),
+          scale: clamp(1 - depth * 0.5, 0.85, 1.45),
+        };
+        applyGloveTransform(side);
+      });
 
       // Calcular centro actual del torso
       const currentTorso = getTorsoCenter(poseLandmarks);
@@ -433,348 +526,329 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
 
   return (
     <div className="calibration-wrapper">
-      <div className="calibration-grid-bg" aria-hidden="true" />
+      {/* Botón Atrás (esquina superior izquierda) */}
+      <button
+        type="button"
+        className="btn-calib-back"
+        onClick={onBackToMenu}
+        aria-label="Volver al menú principal"
+      >
+        Atrás
+      </button>
 
-      <div className="calibration-container">
-        
-        {/* Barra superior con branding y botón Volver */}
-        <header className="calibration-topbar">
-          <div className="calibration-title-group">
-            <h1 className="calibration-logo">VORTEX</h1>
-            <span className="calibration-badge">Calibración Biomecánica</span>
+      {/* =====================================================================
+          ESCENA EN PRIMERA PERSONA: GUANTES CONTROLADOS POR LAS MUÑECAS
+          ===================================================================== */}
+      <div className="calibration-scene" aria-hidden="true">
+        <img
+          ref={leftGloveRef}
+          src={guanteIzq}
+          alt=""
+          className="calibration-glove glove-left"
+          draggable={false}
+        />
+        <img
+          ref={rightGloveRef}
+          src={guanteDer}
+          alt=""
+          className="calibration-glove glove-right"
+          draggable={false}
+        />
+      </div>
+
+      {/* =====================================================================
+          PANEL HUD LATERAL: FASE, POSTURA, PASOS E INSTRUCCIONES
+          ===================================================================== */}
+      <aside className="calibration-panel" aria-label="Panel de calibración">
+        <div className="hud-status">
+          <div className="hud-status-row">
+            <span className="hud-status-label">Fase</span>
+            <span className="hud-status-value">{PHASE_TITLES[currentStep]}</span>
           </div>
+          <div className="hud-status-row">
+            <span className="hud-status-label">Postura</span>
+            <span className={`hud-status-value ${isUserPresent ? 'is-ok' : 'is-bad'}`}>
+              {isUserPresent ? 'Correcta' : 'No detectada'}
+            </span>
+          </div>
+        </div>
 
-          <button
-            type="button"
-            className="btn-calib-back"
-            onClick={onBackToMenu}
-            aria-label="Volver al menú principal"
-          >
-            ← Volver al Menú
-          </button>
-        </header>
-
-        {/* Stepper visual de pasos */}
-        <nav className="calibration-stepper" aria-label="Progreso de calibración">
-          {[
-            { id: 0, label: 'Detección' },
-            { id: 1, label: 'Neutro' },
-            { id: 2, label: 'Jab' },
-            { id: 3, label: 'Gancho' },
-            { id: 4, label: 'Esquiva' },
-            { id: 5, label: '¡Listo!' },
-          ].map((st, idx) => (
-            <React.Fragment key={st.id}>
-              <div
-                className={`step-item ${currentStep === st.id ? 'is-active' : ''} ${
-                  currentStep > st.id ? 'is-completed' : ''
-                }`}
-              >
-                <span className="step-number">
-                  {currentStep > st.id ? '✓' : st.id}
-                </span>
-                <span className="step-label">{st.label}</span>
-              </div>
-              {idx < 5 && <div className="step-divider" aria-hidden="true" />}
-            </React.Fragment>
+        {/* Stepper de fases */}
+        <ol className="calibration-stepper" aria-label="Progreso de calibración">
+          {PHASES.map((st) => (
+            <li
+              key={st.id}
+              className={`step-item ${currentStep === st.id ? 'is-active' : ''} ${
+                currentStep > st.id ? 'is-completed' : ''
+              }`}
+              aria-current={currentStep === st.id ? 'step' : undefined}
+            >
+              <span className="step-number">{currentStep > st.id ? '✓' : st.id}</span>
+              <span className="step-label">{st.label}</span>
+            </li>
           ))}
-        </nav>
+        </ol>
 
-        {/* Grid Principal: Viewport de Cámara + Panel de Instrucciones */}
-        <main className="calibration-main-grid">
-          
-          {/* Viewport de Cámara con Canvas HUD */}
-          <div className="camera-viewport-card">
-            <span className="viewport-bracket vb-tl" aria-hidden="true" />
-            <span className="viewport-bracket vb-tr" aria-hidden="true" />
-            <span className="viewport-bracket vb-bl" aria-hidden="true" />
-            <span className="viewport-bracket vb-br" aria-hidden="true" />
-
-            <video
-              ref={videoRef}
-              className="camera-video-hidden"
-              playsInline
-              muted
-              autoPlay
-            />
-
-            <canvas
-              ref={canvasRef}
-              className="camera-canvas"
-              width={640}
-              height={480}
-            />
-
-            {/* Telemetría activa */}
-            <div className="camera-telemetry-badge">
-              <span className="telemetry-dot-live" />
-              <span>MEDIAPIPE POSE LITE • 30 FPS</span>
-            </div>
-
-            {/* Alerta de Presencia (Paso 0 o si no se detecta al usuario) */}
-            {!isUserPresent && (
-              <div className="presence-alert-overlay" role="alert">
-                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                <p className="presence-alert-text">
-                  No se detecta usuario frente a la cámara
+        <section className="calibration-step-body">
+          {/* PASO 0: DETECCIÓN DE PRESENCIA */}
+          {currentStep === 0 && (
+            <>
+              <div className="step-info-header">
+                <span className="step-tag">Paso 0 de 4</span>
+                <p className="step-instruction">
+                  Colócate frente a la cámara de forma que tus hombros y torso sean visibles. La IA confirmará tu posición para iniciar.
                 </p>
               </div>
-            )}
+
+              <div className="step-metric-panel">
+                <div className="metric-row">
+                  <span className="metric-label">Hombros detectados</span>
+                  <span className={`metric-value ${isUserPresent ? 'is-ok' : 'is-bad'}`}>
+                    {isUserPresent ? 'Visibles' : 'No detectados'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-calib-action"
+                disabled={!isUserPresent}
+                onClick={() => setStep(1)}
+              >
+                {isUserPresent ? 'Iniciar calibración' : 'Esperando detección...'}
+              </button>
+            </>
+          )}
+
+          {/* PASO 1: POSICIÓN NEUTRA */}
+          {currentStep === 1 && (
+            <>
+              <div className="step-info-header">
+                <span className="step-tag">Paso 1 de 4</span>
+                <p className="step-instruction">
+                  Ponte en guardia relajada mirando al frente. El temporizador capturará automáticamente tu centro de gravedad durante 2 segundos.
+                </p>
+              </div>
+
+              <div className="step-metric-panel">
+                <div className="metric-row">
+                  <span className="metric-label">Tiempo restante</span>
+                  <span className="metric-value">{liveMetrics.countdownSeconds}s</span>
+                </div>
+                <div className="calib-progress-bar-bg">
+                  <div
+                    className="calib-progress-bar-fill"
+                    style={{ width: `${liveMetrics.progressPercent}%` }}
+                  />
+                </div>
+                <div className="metric-row">
+                  <span className="metric-label">Sensor</span>
+                  <span className={`metric-value ${isUserPresent ? 'is-ok' : 'is-bad'}`}>
+                    {isUserPresent ? 'Muestreando...' : 'Pausado'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-calib-action"
+                onClick={() => {
+                  neutralTimerRef.current = { startTime: null, samples: [], lastLoggedSec: -1 };
+                  isCapturingRef.current = true;
+                }}
+                disabled={!isUserPresent}
+              >
+                Reiniciar contador (2s)
+              </button>
+            </>
+          )}
+
+          {/* PASO 2: CALIBRAR JAB */}
+          {currentStep === 2 && (
+            <>
+              <div className="step-info-header">
+                <span className="step-tag">Paso 2 de 4</span>
+                <p className="step-instruction">
+                  Extiende tu brazo frontal completamente hacia adelante (golpe recto Jab). Se guardará la distancia máxima y el umbral al 80%.
+                </p>
+              </div>
+
+              <div className="step-metric-panel">
+                <div className="metric-row">
+                  <span className="metric-label">Extensión actual</span>
+                  <span className="metric-value">{liveMetrics.jabExtension}</span>
+                </div>
+                <div className="metric-row">
+                  <span className="metric-label">Extensión máxima</span>
+                  <span className="metric-value">
+                    {metricsBufferRef.current.maxReach.toFixed(2)}
+                  </span>
+                </div>
+                <div className="calib-progress-bar-bg">
+                  <div
+                    className="calib-progress-bar-fill"
+                    style={{ width: `${liveMetrics.progressPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-calib-action"
+                onClick={handleConfirmJab}
+                disabled={metricsBufferRef.current.maxReach === 0}
+              >
+                Confirmar Jab
+              </button>
+            </>
+          )}
+
+          {/* PASO 3: CALIBRAR GANCHO (HOOK) */}
+          {currentStep === 3 && (
+            <>
+              <div className="step-info-header">
+                <span className="step-tag">Paso 3 de 4</span>
+                <p className="step-instruction">
+                  Ejecuta un Gancho circular manteniendo el codo flexionado (~90°). Registraremos el ángulo y tu rango lateral.
+                </p>
+              </div>
+
+              <div className="step-metric-panel">
+                <div className="metric-row">
+                  <span className="metric-label">Ángulo de codo</span>
+                  <span className="metric-value">{liveMetrics.hookAngle}°</span>
+                </div>
+                <div className="metric-row">
+                  <span className="metric-label">Rango lateral (X)</span>
+                  <span className="metric-value">{liveMetrics.hookRange}</span>
+                </div>
+                <div className="calib-progress-bar-bg">
+                  <div
+                    className="calib-progress-bar-fill"
+                    style={{ width: `${liveMetrics.progressPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-calib-action"
+                onClick={handleConfirmHook}
+              >
+                Confirmar Gancho
+              </button>
+            </>
+          )}
+
+          {/* PASO 4: CALIBRAR ESQUIVA (DODGE) */}
+          {currentStep === 4 && (
+            <>
+              <div className="step-info-header">
+                <span className="step-tag">Paso 4 de 4</span>
+                <p className="step-instruction">
+                  Inclina tu torso hacia la izquierda y luego hacia la derecha para registrar el umbral de desplazamiento lateral respecto al centro.
+                </p>
+              </div>
+
+              <div className="step-metric-panel">
+                <div className="metric-row">
+                  <span className="metric-label">Desplazamiento X</span>
+                  <span className="metric-value">{liveMetrics.dodgeDisplacement}</span>
+                </div>
+                <div className="metric-row">
+                  <span className="metric-label">Máx izq. / der.</span>
+                  <span className="metric-value">
+                    {metricsBufferRef.current.maxDodgeLeft.toFixed(2)} / {metricsBufferRef.current.maxDodgeRight.toFixed(2)}
+                  </span>
+                </div>
+                <div className="calib-progress-bar-bg">
+                  <div
+                    className="calib-progress-bar-fill"
+                    style={{ width: `${liveMetrics.progressPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-calib-action"
+                onClick={handleConfirmDodge}
+              >
+                Confirmar Esquiva
+              </button>
+            </>
+          )}
+
+          {/* PASO 5: CALIBRACIÓN COMPLETADA */}
+          {currentStep === 5 && (
+            <>
+              <div className="step-info-header">
+                <span className="step-tag is-ok">Calibración lista</span>
+                <p className="step-instruction">
+                  Tus movimientos y rangos fueron calculados exitosamente. Ahora tu juego estará optimizado a tu cuerpo.
+                </p>
+              </div>
+
+              <div className="calib-summary-grid">
+                <div className="summary-item">
+                  <span className="summary-label">Umbral Jab</span>
+                  <span className="summary-val">{calibratedParams.jab.threshold}</span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Ángulo Gancho</span>
+                  <span className="summary-val">{calibratedParams.hook.elbowAngle}°</span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Rango Gancho X</span>
+                  <span className="summary-val">{calibratedParams.hook.lateralRange}</span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Umbral Esquiva</span>
+                  <span className="summary-val">{calibratedParams.dodge.threshold}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-calib-action btn-ready-to-fight"
+                onClick={handleReadyToFight}
+              >
+                ¡Listo para pelear!
+              </button>
+            </>
+          )}
+        </section>
+      </aside>
+
+      {/* =====================================================================
+          CÁMARA PICTURE-IN-PICTURE (ESQUINA INFERIOR DERECHA)
+          ===================================================================== */}
+      <div className="camera-pip">
+        <video
+          ref={videoRef}
+          className="camera-video-hidden"
+          playsInline
+          muted
+          autoPlay
+        />
+
+        <canvas
+          ref={canvasRef}
+          className="camera-canvas"
+          width={640}
+          height={480}
+        />
+
+        <div className="camera-telemetry-badge">
+          <span className="telemetry-dot-live" />
+          <span>POSE LITE</span>
+        </div>
+
+        {!isUserPresent && (
+          <div className="presence-alert-overlay" role="alert">
+            <p className="presence-alert-text">No se detecta usuario</p>
           </div>
-
-          {/* Panel Lateral de Control e Instrucciones */}
-          <section className="calibration-controls-card">
-            
-            {/* PASO 0: DETECCIÓN DE PRESENCIA */}
-            {currentStep === 0 && (
-              <>
-                <div className="step-info-header">
-                  <span className="step-tag-pill">Paso 0 de 4</span>
-                  <h2 className="step-title">Detección de Presencia</h2>
-                  <p className="step-instruction">
-                    Colócate frente a la cámara de forma que tus hombros y torso sean visibles. La IA confirmará tu posición para iniciar.
-                  </p>
-                </div>
-
-                <div className="step-metric-panel">
-                  <div className="metric-row">
-                    <span className="metric-label">Hombros detectados:</span>
-                    <span className="metric-value" style={{ color: isUserPresent ? '#00ffaa' : '#ff3366' }}>
-                      {isUserPresent ? 'VISIBLES (Hombro 11 & 12)' : 'NO DETECTADOS'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="calib-actions-group">
-                  <button
-                    type="button"
-                    className="btn-calib-action btn-calib-secondary"
-                    disabled={!isUserPresent}
-                    onClick={() => setStep(1)}
-                  >
-                    {isUserPresent ? 'Iniciar Calibración →' : 'Esperando Detección...'}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* PASO 1: POSICIÓN NEUTRA */}
-            {currentStep === 1 && (
-              <>
-                <div className="step-info-header">
-                  <span className="step-tag-pill">Paso 1 de 4</span>
-                  <h2 className="step-title">Posición Neutra</h2>
-                  <p className="step-instruction">
-                    Ponte en guardia relajada mirando al frente. El temporizador capturará automáticamente tu centro de gravedad durante 2 segundos.
-                  </p>
-                </div>
-
-                <div className="step-metric-panel">
-                  <div className="metric-row">
-                    <span className="metric-label">Tiempo restante:</span>
-                    <span className="metric-value">{liveMetrics.countdownSeconds}s</span>
-                  </div>
-                  <div className="calib-progress-bar-bg">
-                    <div
-                      className="calib-progress-bar-fill"
-                      style={{ width: `${liveMetrics.progressPercent}%` }}
-                    />
-                  </div>
-                  <div className="metric-row" style={{ marginTop: '0.25rem' }}>
-                    <span className="metric-label" style={{ fontSize: '0.78rem' }}>Estado del sensor:</span>
-                    <span className="metric-value" style={{ fontSize: '0.78rem', color: isUserPresent ? '#00ffaa' : '#ff3366' }}>
-                      {isUserPresent ? 'Muestreando en vivo...' : 'Pausado (esperando usuario)'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="calib-actions-group">
-                  <button
-                    type="button"
-                    className="btn-calib-action btn-calib-secondary"
-                    onClick={() => {
-                      neutralTimerRef.current = { startTime: null, samples: [], lastLoggedSec: -1 };
-                      isCapturingRef.current = true;
-                    }}
-                    disabled={!isUserPresent}
-                  >
-                    Reiniciar Contador (2s)
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* PASO 2: CALIBRAR JAB */}
-            {currentStep === 2 && (
-              <>
-                <div className="step-info-header">
-                  <span className="step-tag-pill">Paso 2 de 4</span>
-                  <h2 className="step-title">Calibrar Jab</h2>
-                  <p className="step-instruction">
-                    Extiende tu brazo frontal completamente hacia adelante (golpe recto Jab). Se guardará la distancia máxima y el umbral al 80%.
-                  </p>
-                </div>
-
-                <div className="step-metric-panel">
-                  <div className="metric-row">
-                    <span className="metric-label">Extensión Actual Hombro-Muñeca:</span>
-                    <span className="metric-value">{liveMetrics.jabExtension}</span>
-                  </div>
-                  <div className="metric-row">
-                    <span className="metric-label">Extensión Máxima Registrada:</span>
-                    <span className="metric-value">
-                      {metricsBufferRef.current.maxReach.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="calib-progress-bar-bg">
-                    <div
-                      className="calib-progress-bar-fill"
-                      style={{ width: `${liveMetrics.progressPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="calib-actions-group">
-                  <button
-                    type="button"
-                    className="btn-calib-action btn-calib-secondary"
-                    onClick={handleConfirmJab}
-                    disabled={metricsBufferRef.current.maxReach === 0}
-                  >
-                    Confirmar Extensión de Jab ✓
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* PASO 3: CALIBRAR GANCHO (HOOK) */}
-            {currentStep === 3 && (
-              <>
-                <div className="step-info-header">
-                  <span className="step-tag-pill">Paso 3 de 4</span>
-                  <h2 className="step-title">Calibrar Gancho (Hook)</h2>
-                  <p className="step-instruction">
-                    Ejecuta un Gancho circular manteniendo el codo flexionado (~90°). Registraremos el ángulo y tu rango lateral.
-                  </p>
-                </div>
-
-                <div className="step-metric-panel">
-                  <div className="metric-row">
-                    <span className="metric-label">Ángulo de Codo Actual:</span>
-                    <span className="metric-value">{liveMetrics.hookAngle}°</span>
-                  </div>
-                  <div className="metric-row">
-                    <span className="metric-label">Rango Lateral (X):</span>
-                    <span className="metric-value">{liveMetrics.hookRange}</span>
-                  </div>
-                  <div className="calib-progress-bar-bg">
-                    <div
-                      className="calib-progress-bar-fill"
-                      style={{ width: `${liveMetrics.progressPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="calib-actions-group">
-                  <button
-                    type="button"
-                    className="btn-calib-action btn-calib-secondary"
-                    onClick={handleConfirmHook}
-                  >
-                    Confirmar Gancho ✓
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* PASO 4: CALIBRAR ESQUIVA (DODGE) */}
-            {currentStep === 4 && (
-              <>
-                <div className="step-info-header">
-                  <span className="step-tag-pill">Paso 4 de 4</span>
-                  <h2 className="step-title">Calibrar Esquiva (Dodge)</h2>
-                  <p className="step-instruction">
-                    Inclina tu torso hacia la izquierda y luego hacia la derecha para registrar el umbral de desplazamiento lateral respecto al centro.
-                  </p>
-                </div>
-
-                <div className="step-metric-panel">
-                  <div className="metric-row">
-                    <span className="metric-label">Desplazamiento Lateral X:</span>
-                    <span className="metric-value">{liveMetrics.dodgeDisplacement}</span>
-                  </div>
-                  <div className="metric-row">
-                    <span className="metric-label">Máx Izquierda / Derecha:</span>
-                    <span className="metric-value">
-                      {metricsBufferRef.current.maxDodgeLeft.toFixed(2)} / {metricsBufferRef.current.maxDodgeRight.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="calib-progress-bar-bg">
-                    <div
-                      className="calib-progress-bar-fill"
-                      style={{ width: `${liveMetrics.progressPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="calib-actions-group">
-                  <button
-                    type="button"
-                    className="btn-calib-action btn-calib-secondary"
-                    onClick={handleConfirmDodge}
-                  >
-                    Confirmar Esquiva ✓
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* PASO 5: CALIBRACIÓN COMPLETADA */}
-            {currentStep === 5 && (
-              <>
-                <div className="step-info-header">
-                  <span className="step-tag-pill" style={{ color: '#00ffaa' }}>Calibración Lista</span>
-                  <h2 className="step-title">¡Perfil Biomecánico Creado!</h2>
-                  <p className="step-instruction">
-                    Tus movimientos y rangos fueron calculados exitosamente. Ahora tu juego estará optimizado a tu cuerpo.
-                  </p>
-                </div>
-
-                <div className="calib-summary-grid">
-                  <div className="summary-item-badge">
-                    <span className="summary-label">Umbral Jab (80%)</span>
-                    <span className="summary-val">{calibratedParams.jab.threshold}</span>
-                  </div>
-                  <div className="summary-item-badge">
-                    <span className="summary-label">Ángulo Gancho</span>
-                    <span className="summary-val">{calibratedParams.hook.elbowAngle}°</span>
-                  </div>
-                  <div className="summary-item-badge">
-                    <span className="summary-label">Rango Gancho X</span>
-                    <span className="summary-val">{calibratedParams.hook.lateralRange}</span>
-                  </div>
-                  <div className="summary-item-badge">
-                    <span className="summary-label">Umbral Esquiva X</span>
-                    <span className="summary-val">{calibratedParams.dodge.threshold}</span>
-                  </div>
-                </div>
-
-                <div className="calib-actions-group">
-                  <button
-                    type="button"
-                    className="btn-calib-action btn-ready-to-fight"
-                    onClick={handleReadyToFight}
-                  >
-                    ⚡ ¡Listo para Pelear!
-                  </button>
-                </div>
-              </>
-            )}
-
-          </section>
-
-        </main>
-
+        )}
       </div>
     </div>
   );

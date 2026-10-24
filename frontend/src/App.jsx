@@ -3,11 +3,12 @@ import Login from './components/Login';
 import Register from './components/Register';
 import MainMenu from './components/MainMenu';
 import Levels from './components/Levels';
+import Configuracion from './components/Configuracion';
 import Calibration from './components/Calibration';
 import GameEngine from './components/GameEngine';
 
 export default function App() {
-  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'levels' | 'calibration' | 'game'
+  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'levels' | 'config' | 'calibration' | 'game'
   const [currentView, setCurrentView] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
   const [calibrationData, setCalibrationData] = useState(null);
@@ -70,7 +71,7 @@ export default function App() {
           user={currentUser}
           onStart={() => setCurrentView('levels')}
           onContinue={() => setCurrentView('levels')}
-          onSettings={() => console.log('Ajustes seleccionados')}
+          onSettings={() => setCurrentView('config')}
           onExit={handleLogout}
         />
       )}
@@ -83,7 +84,14 @@ export default function App() {
         />
       )}
 
-      {/* VISTA 5: CALIBRACIÓN BIOMECÁNICA PRE-PARTIDA */}
+      {/* VISTA 5: CONFIGURACIÓN */}
+      {currentView === 'config' && (
+        <Configuracion
+          onBack={() => setCurrentView('menu')}
+        />
+      )}
+
+      {/* VISTA 6: CALIBRACIÓN BIOMECÁNICA PRE-PARTIDA */}
       {currentView === 'calibration' && (
         <Calibration
           onCalibrationComplete={handleCalibrationComplete}
@@ -91,7 +99,7 @@ export default function App() {
         />
       )}
 
-      {/* VISTA 6: MOTOR DE JUEGO (GAME ENGINE PLACEHOLDER) */}
+      {/* VISTA 7: MOTOR DE JUEGO (GAME ENGINE PLACEHOLDER) */}
       {currentView === 'game' && (
         <GameEngine
           calibrationData={calibrationData}

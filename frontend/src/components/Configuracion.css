@@ -1,0 +1,266 @@
+/* ==========================================================================
+   VORTEX - CONFIGURACION COMPONENT STYLES ("Configuracion.css")
+   Paleta: #000000 (fondo), #F3F3EE (texto y borde), #B0B7F5 (secundario),
+           #B6F532 (acento neón). Tipografía: Intel One Mono.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:wght@400;500;600;700&display=swap');
+
+.vortex-config-container {
+  --cf-color-bg: #000000;
+  --cf-color-white: #F3F3EE;
+  --cf-color-lavender: #B0B7F5;
+  --cf-color-neon: #B6F532;
+  --cf-neon-glow: rgba(182, 245, 50, 0.4);
+  --cf-track: rgba(243, 243, 238, 0.2);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: clamp(1rem, 4vw, 3rem);
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: var(--cf-color-bg);
+  color: var(--cf-color-white);
+  font-family: 'Intel One Mono', monospace;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.vortex-config-container *,
+.vortex-config-container *::before,
+.vortex-config-container *::after {
+  box-sizing: border-box;
+  font-family: 'Intel One Mono', monospace;
+}
+
+/* ==========================================================================
+   RECUADRO PRINCIPAL
+   ========================================================================== */
+.config-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(960px, 100%);
+  height: min(640px, 100%);
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  border: 2px solid var(--cf-color-white);
+}
+
+.config-title {
+  margin: 0 0 clamp(2rem, 7vh, 4.5rem);
+  font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  /* Compensa el espacio de la última letra para centrar visualmente */
+  margin-right: -0.3em;
+  text-align: center;
+}
+
+/* ==========================================================================
+   OPCIONES
+   ========================================================================== */
+.config-options {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 5vh, 3rem);
+}
+
+.config-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem clamp(1.5rem, 4vw, 3rem);
+}
+
+.config-label {
+  min-width: 8ch;
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  letter-spacing: 0.2em;
+}
+
+/* --------------------------------------------------------------------------
+   Idioma: toggle segmentado minimalista
+   -------------------------------------------------------------------------- */
+.config-toggle {
+  display: inline-flex;
+  border: 1px solid rgba(243, 243, 238, 0.5);
+}
+
+.config-toggle-option {
+  padding: 0.45rem 1.1rem;
+  border: none;
+  background: transparent;
+  color: rgba(243, 243, 238, 0.55);
+  font-size: clamp(0.85rem, 1.2vw, 1rem);
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.config-toggle-option + .config-toggle-option {
+  border-left: 1px solid rgba(243, 243, 238, 0.5);
+}
+
+.config-toggle-option:hover,
+.config-toggle-option:focus-visible {
+  color: var(--cf-color-neon);
+  outline: none;
+}
+
+.config-toggle-option.is-selected {
+  background: var(--cf-color-neon);
+  color: var(--cf-color-bg);
+}
+
+/* --------------------------------------------------------------------------
+   Volumen: input range sin estilos nativos
+   -------------------------------------------------------------------------- */
+.config-volume {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.config-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: clamp(180px, 28vw, 340px);
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.config-range:focus {
+  outline: none;
+}
+
+/* Pista (WebKit/Blink): la parte rellena usa la variable --range-fill */
+.config-range::-webkit-slider-runnable-track {
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    var(--cf-color-neon) 0%,
+    var(--cf-color-neon) var(--range-fill, 50%),
+    var(--cf-track) var(--range-fill, 50%),
+    var(--cf-track) 100%
+  );
+}
+
+.config-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6.5px;
+  border: 2px solid var(--cf-color-neon);
+  border-radius: 50%;
+  background: var(--cf-color-bg);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Pista y relleno (Firefox) */
+.config-range::-moz-range-track {
+  height: 3px;
+  border: none;
+  background: var(--cf-track);
+}
+
+.config-range::-moz-range-progress {
+  height: 3px;
+  background: var(--cf-color-neon);
+}
+
+.config-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--cf-color-neon);
+  border-radius: 50%;
+  background: var(--cf-color-bg);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.config-range:hover::-webkit-slider-thumb,
+.config-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 10px var(--cf-neon-glow);
+  transform: scale(1.15);
+}
+
+.config-range:hover::-moz-range-thumb,
+.config-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 10px var(--cf-neon-glow);
+  transform: scale(1.15);
+}
+
+.config-volume-value {
+  min-width: 3ch;
+  font-size: clamp(0.85rem, 1.2vw, 1rem);
+  font-variant-numeric: tabular-nums;
+  color: var(--cf-color-lavender);
+  text-align: right;
+}
+
+/* --------------------------------------------------------------------------
+   Calibrar los sensores: texto interactivo
+   -------------------------------------------------------------------------- */
+.config-link-btn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--cf-color-white);
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  letter-spacing: 0.2em;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.config-link-btn:hover,
+.config-link-btn:focus-visible {
+  color: var(--cf-color-neon);
+  text-shadow: 0 0 10px var(--cf-neon-glow);
+  outline: none;
+}
+
+/* ==========================================================================
+   BOTÓN ATRÁS (ESQUINA INFERIOR DERECHA DEL RECUADRO)
+   ========================================================================== */
+.config-back-btn {
+  position: absolute;
+  right: clamp(1.5rem, 4vw, 3.5rem);
+  bottom: clamp(1.25rem, 3.5vw, 3rem);
+  padding: 0.4rem 0;
+  border: none;
+  background: transparent;
+  color: var(--cf-color-neon);
+  font-size: clamp(0.95rem, 1.4vw, 1.25rem);
+  letter-spacing: 0.25em;
+  cursor: pointer;
+  transition: text-shadow 0.25s ease;
+}
+
+.config-back-btn:hover,
+.config-back-btn:focus-visible {
+  text-shadow: 0 0 10px var(--cf-neon-glow);
+  outline: none;
+}
+
+/* ==========================================================================
+   ADAPTABILIDAD
+   ========================================================================== */
+@media (max-width: 640px) {
+  .config-box {
+    height: auto;
+    min-height: min(560px, 100%);
+    padding-bottom: 4.5rem;
+  }
+
+  .config-range {
+    width: 60vw;
+  }
+}
