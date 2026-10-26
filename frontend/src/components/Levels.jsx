@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useSettings } from '../context/SettingsContext';
 import './Levels.css';
 
 /**
@@ -13,14 +14,16 @@ import './Levels.css';
  * @param {Function} onBack - Callback para volver al menú principal
  * @param {Function} onSelectLevel - Callback al seleccionar un nivel jugable (recibe el id)
  */
+// Nombre: clave de traducción + parámetros; capítulo: numeral para 'capitulo_n'
 const LEVELS = [
-  { id: 'tutorial', name: 'Tutorial', chapter: 'Capítulo 0', available: true },
-  { id: 'level-1', name: 'Nivel 1', chapter: 'Capítulo I', available: false },
-  { id: 'level-2', name: 'Nivel 2', chapter: 'Capítulo II', available: false },
-  { id: 'level-3', name: 'Nivel 3', chapter: 'Capítulo III', available: false },
+  { id: 'tutorial', nameKey: 'niveles_tutorial', chapter: '0', available: true },
+  { id: 'level-1', nameKey: 'nivel_n', nameParams: { n: 1 }, chapter: 'I', available: false },
+  { id: 'level-2', nameKey: 'nivel_n', nameParams: { n: 2 }, chapter: 'II', available: false },
+  { id: 'level-3', nameKey: 'nivel_n', nameParams: { n: 3 }, chapter: 'III', available: false },
 ];
 
 export default function Levels({ onBack, onSelectLevel }) {
+  const { t } = useSettings();
   const carouselRef = useRef(null);
   const wheelLockRef = useRef(false);
 
@@ -62,11 +65,11 @@ export default function Levels({ onBack, onSelectLevel }) {
           type="button"
           className="levels-back-btn"
           onClick={handleBack}
-          aria-label="Volver al menú principal"
+          aria-label={t('aria_atras_menu')}
         >
-          Atrás
+          {t('atras')}
         </button>
-        <h1 className="levels-title">Niveles</h1>
+        <h1 className="levels-title">{t('niveles_titulo')}</h1>
       </header>
 
       {/* Carrusel horizontal de niveles */}
@@ -74,32 +77,37 @@ export default function Levels({ onBack, onSelectLevel }) {
         ref={carouselRef}
         className="levels-carousel"
         onWheel={handleWheel}
-        aria-label="Selección de niveles"
+        aria-label={t('niveles_aria_carrusel')}
       >
-        {LEVELS.map((level) => (
-          <article
-            key={level.id}
-            className={`level-item ${level.available ? 'is-available' : 'is-locked'}`}
-          >
-            {level.available ? (
-              <button
-                type="button"
-                className="level-card"
-                onClick={() => handleSelect(level.id)}
-                aria-label={`Jugar ${level.name}, ${level.chapter}`}
-              >
-                <span className="level-card-name">{level.name}</span>
-                <span className="level-card-score">Puntuación</span>
-              </button>
-            ) : (
-              <div className="level-card" aria-disabled="true">
-                <span className="level-card-name">{level.name}</span>
-                <span className="level-card-score">Puntuación</span>
-              </div>
-            )}
-            <p className="level-chapter">{level.chapter}</p>
-          </article>
-        ))}
+        {LEVELS.map((level) => {
+          const name = t(level.nameKey, level.nameParams);
+          const chapter = t('capitulo_n', { n: level.chapter });
+
+          return (
+            <article
+              key={level.id}
+              className={`level-item ${level.available ? 'is-available' : 'is-locked'}`}
+            >
+              {level.available ? (
+                <button
+                  type="button"
+                  className="level-card"
+                  onClick={() => handleSelect(level.id)}
+                  aria-label={t('niveles_aria_jugar', { nombre: name, capitulo: chapter })}
+                >
+                  <span className="level-card-name">{name}</span>
+                  <span className="level-card-score">{t('niveles_puntuacion')}</span>
+                </button>
+              ) : (
+                <div className="level-card" aria-disabled="true">
+                  <span className="level-card-name">{name}</span>
+                  <span className="level-card-score">{t('niveles_puntuacion')}</span>
+                </div>
+              )}
+              <p className="level-chapter">{chapter}</p>
+            </article>
+          );
+        })}
       </section>
     </div>
   );

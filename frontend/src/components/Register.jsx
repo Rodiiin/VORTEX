@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSettings } from '../context/SettingsContext';
 import './Register.css';
 
 /**
@@ -16,6 +17,8 @@ import './Register.css';
  * @param {string} apiBaseUrl - URL base personalizada para el backend FastAPI (opcional)
  */
 export default function Register({ onNavigateLogin, apiBaseUrl }) {
+  const { t } = useSettings();
+
   // Estado de inputs del formulario
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -52,31 +55,31 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
 
     // 1. Verificar que ningún campo esté vacío
     if (!cleanUsername) {
-      return 'Por favor, ingresa un nombre de usuario.';
+      return 'register_error_nombre';
     }
     if (!cleanEmail) {
-      return 'Por favor, ingresa tu correo electrónico.';
+      return 'register_error_correo';
     }
     if (!password) {
-      return 'Por favor, ingresa una contraseña.';
+      return 'register_error_contrasena';
     }
     if (!confirmPassword) {
-      return 'Por favor, confirma tu contraseña.';
+      return 'register_error_confirmar';
     }
 
     // 2. Validar formato de correo mediante expresión regular (Regex)
     if (!EMAIL_REGEX.test(cleanEmail)) {
-      return 'El formato del correo electrónico no es válido (ej. piloto@vortex.com).';
+      return 'register_error_formato_correo';
     }
 
     // 3. Comprobar longitud mínima de contraseña (al menos 6 caracteres)
     if (password.length < 6) {
-      return 'La contraseña debe contener al menos 6 caracteres.';
+      return 'register_error_longitud';
     }
 
     // 4. Comprobar que 'Password' y 'Confirm Password' sean exactamente iguales
     if (password !== confirmPassword) {
-      return 'Las contraseñas no coinciden. Por favor, asegúrate de que sean idénticas.';
+      return 'register_error_no_coinciden';
     }
 
     return null;
@@ -120,19 +123,19 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
 
       if (!response.ok) {
         if (response.status === 400) {
-          throw new Error(data?.detail || 'El nombre de usuario o correo ya está registrado.');
+          throw new Error(data?.detail || 'register_error_duplicado');
         } else if (response.status === 422) {
           const detailMsg = Array.isArray(data?.detail)
             ? data.detail[0]?.msg
             : data?.detail;
-          throw new Error(detailMsg || 'Datos con formato inválido.');
+          throw new Error(detailMsg || 'register_error_datos');
         } else {
-          throw new Error(data?.detail || data?.message || `Error del servidor (${response.status})`);
+          throw new Error(data?.detail || data?.message || t('error_servidor', { status: response.status }));
         }
       }
 
       // Éxito HTTP 201 Created:
-      setSuccessMessage('¡Cuenta creada con éxito! Redirigiendo al inicio de sesión...');
+      setSuccessMessage('register_exito');
 
       setTimeout(() => {
         if (typeof onNavigateLogin === 'function') {
@@ -143,9 +146,9 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
     } catch (err) {
       console.error('VORTEX Register Error:', err);
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        setErrorMessage('Error de conexión: No se pudo conectar con el servidor VORTEX.');
+        setErrorMessage('error_conexion');
       } else {
-        setErrorMessage(err.message || 'Error inesperado al crear la cuenta.');
+        setErrorMessage(err.message || 'register_error_inesperado');
       }
     } finally {
       setIsLoading(false);
@@ -168,18 +171,18 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
         <div className="vortex-circle-inner vortex-register-inner">
           {/* 3. CONTENIDO CENTRAL (Formulario) */}
           <div className="vortex-central-content vortex-register-content">
-            <h2 className="vortex-form-title">Crear Cuenta</h2>
+            <h2 className="vortex-form-title">{t('register_titulo')}</h2>
 
             {/* Mensajes de feedback accesibles */}
             {errorMessage && (
               <div className="vortex-hud-alert vortex-hud-alert-error" role="alert">
-                <span>{errorMessage}</span>
+                <span>{t(errorMessage)}</span>
               </div>
             )}
 
             {successMessage && (
               <div className="vortex-hud-alert vortex-hud-alert-success" role="status">
-                <span>{successMessage}</span>
+                <span>{t(successMessage)}</span>
               </div>
             )}
 
@@ -187,14 +190,14 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
               {/* Campo 1: Nombre */}
               <div className="vortex-field-group">
                 <label htmlFor="reg-username" className="vortex-field-label">
-                  Nombre
+                  {t('campo_nombre')}
                 </label>
                 <input
                   id="reg-username"
                   name="username"
                   type="text"
                   className="vortex-clean-input"
-                  placeholder="Ingresa tu nombre de usuario"
+                  placeholder={t('register_placeholder_nombre')}
                   value={username}
                   onChange={handleInputChange(setUsername)}
                   disabled={isLoading || Boolean(successMessage)}
@@ -206,14 +209,14 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
               {/* Campo 2: Correo electrónico */}
               <div className="vortex-field-group">
                 <label htmlFor="reg-email" className="vortex-field-label">
-                  Correo electrónico
+                  {t('campo_correo')}
                 </label>
                 <input
                   id="reg-email"
                   name="email"
                   type="email"
                   className="vortex-clean-input"
-                  placeholder="correo@ejemplo.com"
+                  placeholder={t('register_placeholder_correo')}
                   value={email}
                   onChange={handleInputChange(setEmail)}
                   disabled={isLoading || Boolean(successMessage)}
@@ -224,7 +227,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
               {/* Campo 3: Contraseña */}
               <div className="vortex-field-group">
                 <label htmlFor="reg-password" className="vortex-field-label">
-                  Contraseña
+                  {t('campo_contrasena')}
                 </label>
                 <div className="vortex-input-with-action">
                   <input
@@ -232,7 +235,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     className="vortex-clean-input vortex-password-clean-input"
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder={t('register_placeholder_contrasena')}
                     value={password}
                     onChange={handleInputChange(setPassword)}
                     disabled={isLoading || Boolean(successMessage)}
@@ -243,8 +246,8 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                     className="vortex-pw-toggle-btn"
                     onClick={() => setShowPassword((prev) => !prev)}
                     disabled={isLoading || Boolean(successMessage)}
-                    title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    title={showPassword ? t('ocultar_contrasena') : t('ver_contrasena')}
+                    aria-label={showPassword ? t('ocultar_contrasena') : t('ver_contrasena')}
                   >
                     {showPassword ? (
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -266,7 +269,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
               {/* Campo 4: Confirmar Contraseña */}
               <div className="vortex-field-group">
                 <label htmlFor="reg-confirm-password" className="vortex-field-label">
-                  Confirmar Contraseña
+                  {t('campo_confirmar')}
                 </label>
                 <div className="vortex-input-with-action">
                   <input
@@ -274,7 +277,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                     name="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     className="vortex-clean-input vortex-password-clean-input"
-                    placeholder="Repite tu contraseña"
+                    placeholder={t('register_placeholder_confirmar')}
                     value={confirmPassword}
                     onChange={handleInputChange(setConfirmPassword)}
                     disabled={isLoading || Boolean(successMessage)}
@@ -285,8 +288,8 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                     className="vortex-pw-toggle-btn"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
                     disabled={isLoading || Boolean(successMessage)}
-                    title={showConfirmPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-                    aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    title={showConfirmPassword ? t('ocultar_contrasena') : t('ver_contrasena')}
+                    aria-label={showConfirmPassword ? t('ocultar_contrasena') : t('ver_contrasena')}
                   >
                     {showConfirmPassword ? (
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -311,7 +314,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
                 className={`vortex-minimal-submit-btn ${isLoading ? 'is-loading' : ''}`}
                 disabled={isLoading || Boolean(successMessage)}
               >
-                {isLoading ? 'Registrando...' : 'Crear Cuenta'}
+                {isLoading ? t('register_cargando') : t('register_btn')}
               </button>
             </form>
           </div>
@@ -330,7 +333,7 @@ export default function Register({ onNavigateLogin, apiBaseUrl }) {
           }}
           disabled={isLoading}
         >
-          ¿Ya tienes cuenta? Iniciar Sesión
+          {t('register_ir_login')}
         </button>
       </footer>
     </div>

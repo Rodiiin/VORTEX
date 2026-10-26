@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSettings } from '../context/SettingsContext';
 import './Configuracion.css';
 
 /**
@@ -10,18 +11,17 @@ import './Configuracion.css';
  *  - Opciones: Idioma (Español / Inglés), Volumen (0-100) y Calibrar los sensores.
  *  - Botón "Atrás" en la esquina inferior derecha del recuadro.
  *
- * Por ahora el idioma y el volumen son estado local temporal (no persisten).
+ * El idioma y el volumen son globales (SettingsContext) y persisten en localStorage.
  *
  * @param {Function} onBack - Callback para volver al menú principal
  */
 const LANGUAGES = [
-  { id: 'es', label: 'Español' },
-  { id: 'en', label: 'Inglés' },
+  { id: 'es', labelKey: 'idioma_es' },
+  { id: 'en', labelKey: 'idioma_en' },
 ];
 
 export default function Configuracion({ onBack }) {
-  const [language, setLanguage] = useState('es');
-  const [volume, setVolume] = useState(70);
+  const { language, setLanguage, volume, setVolume, t } = useSettings();
 
   const handleBack = (e) => {
     if (typeof onBack === 'function') {
@@ -36,12 +36,12 @@ export default function Configuracion({ onBack }) {
   return (
     <div className="vortex-config-container" role="main">
       <section className="config-box" aria-labelledby="config-title">
-        <h1 id="config-title" className="config-title">Configuración</h1>
+        <h1 id="config-title" className="config-title">{t('titulo_config')}</h1>
 
         <div className="config-options">
           {/* IDIOMA: toggle segmentado Español / Inglés */}
           <div className="config-row">
-            <span className="config-label" id="config-language-label">Idioma</span>
+            <span className="config-label" id="config-language-label">{t('idioma')}</span>
             <div
               className="config-toggle"
               role="radiogroup"
@@ -56,7 +56,7 @@ export default function Configuracion({ onBack }) {
                   className={`config-toggle-option ${language === lang.id ? 'is-selected' : ''}`}
                   onClick={() => setLanguage(lang.id)}
                 >
-                  {lang.label}
+                  {t(lang.labelKey)}
                 </button>
               ))}
             </div>
@@ -64,7 +64,7 @@ export default function Configuracion({ onBack }) {
 
           {/* VOLUMEN: slider 0-100 con estilo personalizado */}
           <div className="config-row">
-            <label className="config-label" htmlFor="config-volume">Volumen</label>
+            <label className="config-label" htmlFor="config-volume">{t('volumen')}</label>
             <div className="config-volume">
               <input
                 id="config-volume"
@@ -88,7 +88,7 @@ export default function Configuracion({ onBack }) {
               className="config-link-btn"
               onClick={handleCalibrate}
             >
-              Calibrar los sensores
+              {t('calibrar')}
             </button>
           </div>
         </div>
@@ -97,9 +97,9 @@ export default function Configuracion({ onBack }) {
           type="button"
           className="config-back-btn"
           onClick={handleBack}
-          aria-label="Volver al menú principal"
+          aria-label={t('aria_atras_menu')}
         >
-          Atrás
+          {t('atras')}
         </button>
       </section>
     </div>

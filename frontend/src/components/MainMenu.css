@@ -87,8 +87,8 @@
    ========================================================================== */
 .node-wrapper {
   /* Variables de geometría del nodo (ajustables por nodo) */
-  --node-hitbox: 76px;
-  --node-ring-size: 30px;
+  --node-hitbox: 110px;      /* Área clicable del nodo */
+  --node-ring-size: 90px;   /* TAMAÑO DEL CÍRCULO (antes 30px) */
   --node-line-length: 90px;
   --node-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -117,14 +117,14 @@
    -------------------------------------------------------------------------- */
 /* Puño: guante izquierdo del boxeador */
 .node-punch {
-  top: calc(36% + 117px);
+  top: calc(36% + 80px);
   left: calc(19% - 88px);
 }
 
 /* Codo: articulación del brazo extendido */
 .node-elbow {
-  top: calc(30% + 192px);
-  left: calc(44% - 118px);
+  top: calc(30% + 210px);
+  left: calc(44% + 120px);
 }
 
 /* Cintura: franja del cinturón (línea más corta para no salirse de pantalla) */
@@ -333,13 +333,13 @@
    ========================================================================== */
 @media (max-width: 1100px) {
   .node-punch {
-    top: calc(34% + 117px);
+    top: calc(34% + 80px);
     left: calc(14% - 88px);
   }
 
   .node-elbow {
-    top: calc(26% + 192px);
-    left: calc(44% - 118px);
+    top: calc(26% + 210px);
+    left: calc(44% + 120px);
   }
 
   .node-waist {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSettings } from '../context/SettingsContext';
 import './MainMenu.css';
 
 /**
@@ -27,6 +28,8 @@ export default function MainMenu({
   onExit,
   user,
 }) {
+  const { t } = useSettings();
+
   const handlePlay = (e) => {
     if (typeof onContinue === 'function') {
       onContinue(e);
@@ -64,12 +67,12 @@ export default function MainMenu({
         type="button"
         className="node-wrapper node-punch"
         onClick={handlePlay}
-        aria-label="Nueva Partida o Continuar Partida"
+        aria-label={t('aria_jugar')}
       >
         <span className="node-ring" aria-hidden="true" />
         <span className="node-line" aria-hidden="true" />
         <span className="node-label">
-          Nueva Partida /<br />Continuar Partida
+          {t('nueva_partida')} /<br />{t('continuar_partida')}
         </span>
       </button>
 
@@ -77,22 +80,22 @@ export default function MainMenu({
         type="button"
         className="node-wrapper node-elbow"
         onClick={handleSettings}
-        aria-label="Abrir panel de configuración"
+        aria-label={t('aria_configuracion')}
       >
         <span className="node-ring" aria-hidden="true" />
         <span className="node-line" aria-hidden="true" />
-        <span className="node-label">Configuración</span>
+        <span className="node-label">{t('configuracion')}</span>
       </button>
 
       <button
         type="button"
         className="node-wrapper node-waist"
         onClick={handleExit}
-        aria-label="Cerrar sesión o salir del juego"
+        aria-label={t('aria_salir')}
       >
         <span className="node-ring" aria-hidden="true" />
         <span className="node-line" aria-hidden="true" />
-        <span className="node-label">Salir</span>
+        <span className="node-label">{t('salir')}</span>
       </button>
 
       {/* ===================================================================

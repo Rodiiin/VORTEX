@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSettings } from '../context/SettingsContext';
 import './Login.css';
 
 /**
@@ -23,6 +24,8 @@ export default function Login({
   apiBaseUrl,
   redirectUrl = '/dashboard',
 }) {
+  const { t } = useSettings();
+
   // Estado de inputs del formulario
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -61,12 +64,12 @@ export default function Login({
     // Validación en cliente previa al fetch
     const cleanUsername = username.trim();
     if (!cleanUsername) {
-      setErrorMessage('Por favor, ingresa tu nombre de usuario.');
+      setErrorMessage('login_error_nombre');
       return;
     }
 
     if (!password) {
-      setErrorMessage('Por favor, ingresa tu contraseña.');
+      setErrorMessage('login_error_contrasena');
       return;
     }
 
@@ -91,13 +94,13 @@ export default function Login({
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error(data?.detail || 'Credenciales inválidas. Verifica tus datos.');
+          throw new Error(data?.detail || 'login_error_credenciales');
         } else if (response.status === 404) {
-          throw new Error('Servicio de autenticación no disponible (404).');
+          throw new Error('login_error_404');
         } else if (response.status === 422) {
-          throw new Error(data?.detail?.[0]?.msg || 'Formato de credenciales incorrecto.');
+          throw new Error(data?.detail?.[0]?.msg || 'login_error_formato');
         } else {
-          throw new Error(data?.detail || data?.message || `Error del servidor (${response.status})`);
+          throw new Error(data?.detail || data?.message || t('error_servidor', { status: response.status }));
         }
       }
 
@@ -112,7 +115,7 @@ export default function Login({
         localStorage.setItem('vortex_user', JSON.stringify(data.user));
       }
 
-      setSuccessMessage('Sesión iniciada correctamente.');
+      setSuccessMessage('login_exito');
 
       setTimeout(() => {
         if (typeof onLoginSuccess === 'function') {
@@ -125,9 +128,9 @@ export default function Login({
     } catch (err) {
       console.error('VORTEX Login Error:', err);
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        setErrorMessage('Error de conexión: No se pudo conectar con el servidor VORTEX.');
+        setErrorMessage('error_conexion');
       } else {
-        setErrorMessage(err.message || 'Error inesperado al iniciar sesión.');
+        setErrorMessage(err.message || 'login_error_inesperado');
       }
     } finally {
       setIsLoading(false);
@@ -150,18 +153,18 @@ export default function Login({
         <div className="vortex-circle-inner">
           {/* 3. CONTENIDO CENTRAL (Formulario) */}
           <div className="vortex-central-content">
-            <h2 className="vortex-form-title">Iniciar Sesión</h2>
+            <h2 className="vortex-form-title">{t('login_titulo')}</h2>
 
             {/* Mensajes de feedback accesibles */}
             {errorMessage && (
               <div className="vortex-hud-alert vortex-hud-alert-error" role="alert">
-                <span>{errorMessage}</span>
+                <span>{t(errorMessage)}</span>
               </div>
             )}
 
             {successMessage && (
               <div className="vortex-hud-alert vortex-hud-alert-success" role="status">
-                <span>{successMessage}</span>
+                <span>{t(successMessage)}</span>
               </div>
             )}
 
@@ -169,14 +172,14 @@ export default function Login({
               {/* Campo Nombre */}
               <div className="vortex-field-group">
                 <label htmlFor="login-username" className="vortex-field-label">
-                  Nombre
+                  {t('campo_nombre')}
                 </label>
                 <input
                   id="login-username"
                   name="username"
                   type="text"
                   className="vortex-clean-input"
-                  placeholder="Ingresa tu nombre"
+                  placeholder={t('login_placeholder_nombre')}
                   value={username}
                   onChange={handleUsernameChange}
                   disabled={isLoading}
@@ -188,7 +191,7 @@ export default function Login({
               {/* Campo Contraseña */}
               <div className="vortex-field-group">
                 <label htmlFor="login-password" className="vortex-field-label">
-                  Contraseña
+                  {t('campo_contrasena')}
                 </label>
                 <div className="vortex-input-with-action">
                   <input
@@ -196,7 +199,7 @@ export default function Login({
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     className="vortex-clean-input vortex-password-clean-input"
-                    placeholder="Ingresa tu contraseña"
+                    placeholder={t('login_placeholder_contrasena')}
                     value={password}
                     onChange={handlePasswordChange}
                     disabled={isLoading}
@@ -207,8 +210,8 @@ export default function Login({
                     className="vortex-pw-toggle-btn"
                     onClick={() => setShowPassword((prev) => !prev)}
                     disabled={isLoading}
-                    title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    title={showPassword ? t('ocultar_contrasena') : t('ver_contrasena')}
+                    aria-label={showPassword ? t('ocultar_contrasena') : t('ver_contrasena')}
                   >
                     {showPassword ? (
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -233,7 +236,7 @@ export default function Login({
                 className={`vortex-minimal-submit-btn ${isLoading ? 'is-loading' : ''}`}
                 disabled={isLoading}
               >
-                {isLoading ? 'Autenticando...' : 'Iniciar Sesión'}
+                {isLoading ? t('login_cargando') : t('login_btn')}
               </button>
             </form>
           </div>
@@ -251,7 +254,7 @@ export default function Login({
             }
           }}
         >
-          Crear cuenta
+          {t('login_crear_cuenta')}
         </button>
       </footer>
     </div>

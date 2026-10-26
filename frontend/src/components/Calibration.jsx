@@ -9,6 +9,7 @@ import {
 } from '../utils/poseMath';
 import guanteIzq from '../assets/guante-izq.png';
 import guanteDer from '../assets/guante-der.png';
+import { useSettings } from '../context/SettingsContext';
 import './Calibration.css';
 
 // Resolución resiliente de constructores MediaPipe en entornos Vite / ESM
@@ -34,24 +35,16 @@ const GLOVE_REST = {
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-// Etiquetas de cada fase para el panel HUD
+// Claves de traducción de cada fase para el stepper del panel HUD
+// (el título largo de cada fase usa la clave 'calib_fase_<id>')
 const PHASES = [
-  { id: 0, label: 'Detección' },
-  { id: 1, label: 'Neutro' },
-  { id: 2, label: 'Jab' },
-  { id: 3, label: 'Gancho' },
-  { id: 4, label: 'Esquiva' },
-  { id: 5, label: 'Listo' },
+  { id: 0, labelKey: 'calib_paso_deteccion' },
+  { id: 1, labelKey: 'calib_paso_neutro' },
+  { id: 2, labelKey: 'calib_paso_jab' },
+  { id: 3, labelKey: 'calib_paso_gancho' },
+  { id: 4, labelKey: 'calib_paso_esquiva' },
+  { id: 5, labelKey: 'calib_paso_listo' },
 ];
-
-const PHASE_TITLES = {
-  0: 'Detección de presencia',
-  1: 'Posición neutra',
-  2: 'Calibrar Jab',
-  3: 'Calibrar Gancho',
-  4: 'Calibrar Esquiva',
-  5: 'Calibración completada',
-};
 
 /**
  * Componente de Calibración Biomecánica - VORTEX Exergame
@@ -63,6 +56,8 @@ const PHASE_TITLES = {
  * - Logs detallados por consola en cada paso para diagnóstico con F12.
  */
 export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
+  const { t } = useSettings();
+
   // Estado visible en UI (renderizado de React)
   const [currentStep, setCurrentStep] = useState(0);
   const [isUserPresent, setIsUserPresent] = useState(false);
@@ -531,9 +526,9 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
         type="button"
         className="btn-calib-back"
         onClick={onBackToMenu}
-        aria-label="Volver al menú principal"
+        aria-label={t('aria_atras_menu')}
       >
-        Atrás
+        {t('atras')}
       </button>
 
       {/* =====================================================================
@@ -559,22 +554,22 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
       {/* =====================================================================
           PANEL HUD LATERAL: FASE, POSTURA, PASOS E INSTRUCCIONES
           ===================================================================== */}
-      <aside className="calibration-panel" aria-label="Panel de calibración">
+      <aside className="calibration-panel" aria-label={t('calib_aria_panel')}>
         <div className="hud-status">
           <div className="hud-status-row">
-            <span className="hud-status-label">Fase</span>
-            <span className="hud-status-value">{PHASE_TITLES[currentStep]}</span>
+            <span className="hud-status-label">{t('calib_fase')}</span>
+            <span className="hud-status-value">{t(`calib_fase_${currentStep}`)}</span>
           </div>
           <div className="hud-status-row">
-            <span className="hud-status-label">Postura</span>
+            <span className="hud-status-label">{t('calib_postura')}</span>
             <span className={`hud-status-value ${isUserPresent ? 'is-ok' : 'is-bad'}`}>
-              {isUserPresent ? 'Correcta' : 'No detectada'}
+              {isUserPresent ? t('calib_postura_ok') : t('calib_postura_no')}
             </span>
           </div>
         </div>
 
         {/* Stepper de fases */}
-        <ol className="calibration-stepper" aria-label="Progreso de calibración">
+        <ol className="calibration-stepper" aria-label={t('calib_aria_progreso')}>
           {PHASES.map((st) => (
             <li
               key={st.id}
@@ -584,7 +579,7 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
               aria-current={currentStep === st.id ? 'step' : undefined}
             >
               <span className="step-number">{currentStep > st.id ? '✓' : st.id}</span>
-              <span className="step-label">{st.label}</span>
+              <span className="step-label">{t(st.labelKey)}</span>
             </li>
           ))}
         </ol>
@@ -594,17 +589,17 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
           {currentStep === 0 && (
             <>
               <div className="step-info-header">
-                <span className="step-tag">Paso 0 de 4</span>
+                <span className="step-tag">{t('calib_paso_de', { n: 0 })}</span>
                 <p className="step-instruction">
-                  Colócate frente a la cámara de forma que tus hombros y torso sean visibles. La IA confirmará tu posición para iniciar.
+                  {t('calib_instr_0')}
                 </p>
               </div>
 
               <div className="step-metric-panel">
                 <div className="metric-row">
-                  <span className="metric-label">Hombros detectados</span>
+                  <span className="metric-label">{t('calib_hombros')}</span>
                   <span className={`metric-value ${isUserPresent ? 'is-ok' : 'is-bad'}`}>
-                    {isUserPresent ? 'Visibles' : 'No detectados'}
+                    {isUserPresent ? t('calib_visibles') : t('calib_no_detectados')}
                   </span>
                 </div>
               </div>
@@ -615,7 +610,7 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
                 disabled={!isUserPresent}
                 onClick={() => setStep(1)}
               >
-                {isUserPresent ? 'Iniciar calibración' : 'Esperando detección...'}
+                {isUserPresent ? t('calib_btn_iniciar') : t('calib_btn_esperando')}
               </button>
             </>
           )}
@@ -624,15 +619,15 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
           {currentStep === 1 && (
             <>
               <div className="step-info-header">
-                <span className="step-tag">Paso 1 de 4</span>
+                <span className="step-tag">{t('calib_paso_de', { n: 1 })}</span>
                 <p className="step-instruction">
-                  Ponte en guardia relajada mirando al frente. El temporizador capturará automáticamente tu centro de gravedad durante 2 segundos.
+                  {t('calib_instr_1')}
                 </p>
               </div>
 
               <div className="step-metric-panel">
                 <div className="metric-row">
-                  <span className="metric-label">Tiempo restante</span>
+                  <span className="metric-label">{t('calib_tiempo')}</span>
                   <span className="metric-value">{liveMetrics.countdownSeconds}s</span>
                 </div>
                 <div className="calib-progress-bar-bg">
@@ -642,9 +637,9 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
                   />
                 </div>
                 <div className="metric-row">
-                  <span className="metric-label">Sensor</span>
+                  <span className="metric-label">{t('calib_sensor')}</span>
                   <span className={`metric-value ${isUserPresent ? 'is-ok' : 'is-bad'}`}>
-                    {isUserPresent ? 'Muestreando...' : 'Pausado'}
+                    {isUserPresent ? t('calib_muestreando') : t('calib_pausado')}
                   </span>
                 </div>
               </div>
@@ -658,7 +653,7 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
                 }}
                 disabled={!isUserPresent}
               >
-                Reiniciar contador (2s)
+                {t('calib_btn_reiniciar')}
               </button>
             </>
           )}
@@ -667,19 +662,19 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
           {currentStep === 2 && (
             <>
               <div className="step-info-header">
-                <span className="step-tag">Paso 2 de 4</span>
+                <span className="step-tag">{t('calib_paso_de', { n: 2 })}</span>
                 <p className="step-instruction">
-                  Extiende tu brazo frontal completamente hacia adelante (golpe recto Jab). Se guardará la distancia máxima y el umbral al 80%.
+                  {t('calib_instr_2')}
                 </p>
               </div>
 
               <div className="step-metric-panel">
                 <div className="metric-row">
-                  <span className="metric-label">Extensión actual</span>
+                  <span className="metric-label">{t('calib_ext_actual')}</span>
                   <span className="metric-value">{liveMetrics.jabExtension}</span>
                 </div>
                 <div className="metric-row">
-                  <span className="metric-label">Extensión máxima</span>
+                  <span className="metric-label">{t('calib_ext_max')}</span>
                   <span className="metric-value">
                     {metricsBufferRef.current.maxReach.toFixed(2)}
                   </span>
@@ -698,7 +693,7 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
                 onClick={handleConfirmJab}
                 disabled={metricsBufferRef.current.maxReach === 0}
               >
-                Confirmar Jab
+                {t('calib_btn_jab')}
               </button>
             </>
           )}
@@ -707,19 +702,19 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
           {currentStep === 3 && (
             <>
               <div className="step-info-header">
-                <span className="step-tag">Paso 3 de 4</span>
+                <span className="step-tag">{t('calib_paso_de', { n: 3 })}</span>
                 <p className="step-instruction">
-                  Ejecuta un Gancho circular manteniendo el codo flexionado (~90°). Registraremos el ángulo y tu rango lateral.
+                  {t('calib_instr_3')}
                 </p>
               </div>
 
               <div className="step-metric-panel">
                 <div className="metric-row">
-                  <span className="metric-label">Ángulo de codo</span>
+                  <span className="metric-label">{t('calib_angulo')}</span>
                   <span className="metric-value">{liveMetrics.hookAngle}°</span>
                 </div>
                 <div className="metric-row">
-                  <span className="metric-label">Rango lateral (X)</span>
+                  <span className="metric-label">{t('calib_rango')}</span>
                   <span className="metric-value">{liveMetrics.hookRange}</span>
                 </div>
                 <div className="calib-progress-bar-bg">
@@ -735,7 +730,7 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
                 className="btn-calib-action"
                 onClick={handleConfirmHook}
               >
-                Confirmar Gancho
+                {t('calib_btn_gancho')}
               </button>
             </>
           )}
@@ -744,19 +739,19 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
           {currentStep === 4 && (
             <>
               <div className="step-info-header">
-                <span className="step-tag">Paso 4 de 4</span>
+                <span className="step-tag">{t('calib_paso_de', { n: 4 })}</span>
                 <p className="step-instruction">
-                  Inclina tu torso hacia la izquierda y luego hacia la derecha para registrar el umbral de desplazamiento lateral respecto al centro.
+                  {t('calib_instr_4')}
                 </p>
               </div>
 
               <div className="step-metric-panel">
                 <div className="metric-row">
-                  <span className="metric-label">Desplazamiento X</span>
+                  <span className="metric-label">{t('calib_desplazamiento')}</span>
                   <span className="metric-value">{liveMetrics.dodgeDisplacement}</span>
                 </div>
                 <div className="metric-row">
-                  <span className="metric-label">Máx izq. / der.</span>
+                  <span className="metric-label">{t('calib_max_lr')}</span>
                   <span className="metric-value">
                     {metricsBufferRef.current.maxDodgeLeft.toFixed(2)} / {metricsBufferRef.current.maxDodgeRight.toFixed(2)}
                   </span>
@@ -774,7 +769,7 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
                 className="btn-calib-action"
                 onClick={handleConfirmDodge}
               >
-                Confirmar Esquiva
+                {t('calib_btn_esquiva')}
               </button>
             </>
           )}
@@ -783,27 +778,27 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
           {currentStep === 5 && (
             <>
               <div className="step-info-header">
-                <span className="step-tag is-ok">Calibración lista</span>
+                <span className="step-tag is-ok">{t('calib_lista')}</span>
                 <p className="step-instruction">
-                  Tus movimientos y rangos fueron calculados exitosamente. Ahora tu juego estará optimizado a tu cuerpo.
+                  {t('calib_instr_5')}
                 </p>
               </div>
 
               <div className="calib-summary-grid">
                 <div className="summary-item">
-                  <span className="summary-label">Umbral Jab</span>
+                  <span className="summary-label">{t('calib_umbral_jab')}</span>
                   <span className="summary-val">{calibratedParams.jab.threshold}</span>
                 </div>
                 <div className="summary-item">
-                  <span className="summary-label">Ángulo Gancho</span>
+                  <span className="summary-label">{t('calib_angulo_gancho')}</span>
                   <span className="summary-val">{calibratedParams.hook.elbowAngle}°</span>
                 </div>
                 <div className="summary-item">
-                  <span className="summary-label">Rango Gancho X</span>
+                  <span className="summary-label">{t('calib_rango_gancho')}</span>
                   <span className="summary-val">{calibratedParams.hook.lateralRange}</span>
                 </div>
                 <div className="summary-item">
-                  <span className="summary-label">Umbral Esquiva</span>
+                  <span className="summary-label">{t('calib_umbral_esquiva')}</span>
                   <span className="summary-val">{calibratedParams.dodge.threshold}</span>
                 </div>
               </div>
@@ -813,7 +808,7 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
                 className="btn-calib-action btn-ready-to-fight"
                 onClick={handleReadyToFight}
               >
-                ¡Listo para pelear!
+                {t('calib_btn_pelear')}
               </button>
             </>
           )}
@@ -846,7 +841,7 @@ export default function Calibration({ onCalibrationComplete, onBackToMenu }) {
 
         {!isUserPresent && (
           <div className="presence-alert-overlay" role="alert">
-            <p className="presence-alert-text">No se detecta usuario</p>
+            <p className="presence-alert-text">{t('calib_no_usuario')}</p>
           </div>
         )}
       </div>
