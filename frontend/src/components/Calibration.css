@@ -27,6 +27,7 @@
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   box-sizing: border-box;
   background-color: var(--cb-color-bg);
@@ -80,8 +81,11 @@
   top: 0;
   left: 0;
   /* Tamaño explícito (proporción 1440x1024) para conocer el ancla antes de cargar */
-  height: 85vh;
-  width: calc(85vh * 1440 / 1024);
+  /* Alto del guante: 85% de la pantalla, pero sin pasar del 70% del ancho
+     (en pantallas verticales quedaría más ancho que la pantalla) */
+  --cb-glove-height: min(85vh, 70vw);
+  height: var(--cb-glove-height);
+  width: calc(var(--cb-glove-height) * 1440 / 1024);
   max-width: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -454,8 +458,20 @@
   }
 
   .calibration-glove {
-    height: 60vh;
-    width: calc(60vh * 1440 / 1024);
+    --cb-glove-height: min(60vh, 70vw);
+  }
+}
+
+/* Móvil en horizontal: PiP más pequeño para que el panel tenga altura útil */
+@media (max-height: 500px) and (orientation: landscape) {
+  .calibration-wrapper {
+    --cb-gap: 10px;
+    --cb-pip-width: 140px;
+  }
+
+  .calibration-panel {
+    width: min(300px, 45vw);
+    max-height: calc(100vh - 2 * var(--cb-gap));
   }
 }
 

@@ -13,16 +13,19 @@
   --cf-color-neon: #B6F532;
   --cf-neon-glow: rgba(182, 245, 50, 0.4);
   --cf-track: rgba(243, 243, 238, 0.2);
+  --cf-page-pad: clamp(1rem, 4vw, 3rem);
 
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100vw;
-  height: 100vh;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
-  padding: clamp(1rem, 4vw, 3rem);
-  overflow: hidden;
+  padding: var(--cf-page-pad);
+  /* Si el contenido no cabe (móvil en horizontal), se puede desplazar */
+  overflow-x: hidden;
+  overflow-y: auto;
   box-sizing: border-box;
   background-color: var(--cf-color-bg);
   color: var(--cf-color-white);
@@ -46,8 +49,10 @@
   display: flex;
   flex-direction: column;
   width: min(960px, 100%);
-  height: min(640px, 100%);
+  min-height: min(640px, calc(100dvh - 2 * var(--cf-page-pad)));
   padding: clamp(1.5rem, 4vw, 3.5rem);
+  /* Deja espacio al botón "Atrás" (absoluto) para que no tape las opciones */
+  padding-bottom: 4.5rem;
   border: 2px solid var(--cf-color-white);
 }
 
@@ -254,13 +259,18 @@
    ADAPTABILIDAD
    ========================================================================== */
 @media (max-width: 640px) {
-  .config-box {
-    height: auto;
-    min-height: min(560px, 100%);
-    padding-bottom: 4.5rem;
-  }
-
   .config-range {
     width: 60vw;
+  }
+}
+
+/* Móvil en horizontal: menos espacio vertical entre bloques */
+@media (max-height: 500px) and (orientation: landscape) {
+  .config-title {
+    margin-bottom: 1.25rem;
+  }
+
+  .config-options {
+    gap: 1rem;
   }
 }

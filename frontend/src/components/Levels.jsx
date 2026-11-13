@@ -16,7 +16,7 @@ import './Levels.css';
  */
 // Nombre: clave de traducción + parámetros; capítulo: numeral para 'capitulo_n'
 const LEVELS = [
-  { id: 'tutorial', nameKey: 'niveles_tutorial', chapter: '0', available: true },
+  { id: 'tutorial', nameKey: 'niveles_tutorial', chapter: null, available: true },
   { id: 'level-1', nameKey: 'nivel_n', nameParams: { n: 1 }, chapter: 'I', available: false },
   { id: 'level-2', nameKey: 'nivel_n', nameParams: { n: 2 }, chapter: 'II', available: false },
   { id: 'level-3', nameKey: 'nivel_n', nameParams: { n: 3 }, chapter: 'III', available: false },
@@ -81,7 +81,7 @@ export default function Levels({ onBack, onSelectLevel }) {
       >
         {LEVELS.map((level) => {
           const name = t(level.nameKey, level.nameParams);
-          const chapter = t('capitulo_n', { n: level.chapter });
+          const chapter = level.chapter ? t('capitulo_n', { n: level.chapter }) : null;
 
           return (
             <article
@@ -93,7 +93,9 @@ export default function Levels({ onBack, onSelectLevel }) {
                   type="button"
                   className="level-card"
                   onClick={() => handleSelect(level.id)}
-                  aria-label={t('niveles_aria_jugar', { nombre: name, capitulo: chapter })}
+                  aria-label={
+                    chapter ? t('niveles_aria_jugar', { nombre: name, capitulo: chapter }) : name
+                  }
                 >
                   <span className="level-card-name">{name}</span>
                   <span className="level-card-score">{t('niveles_puntuacion')}</span>
@@ -104,7 +106,13 @@ export default function Levels({ onBack, onSelectLevel }) {
                   <span className="level-card-score">{t('niveles_puntuacion')}</span>
                 </div>
               )}
-              <p className="level-chapter">{chapter}</p>
+              {/* Sin capítulo: se mantiene el espacio para alinear las tarjetas */}
+              <p
+                className={`level-chapter${chapter ? '' : ' is-empty'}`}
+                aria-hidden={chapter ? undefined : 'true'}
+              >
+                {chapter ?? ' '}
+              </p>
             </article>
           );
         })}

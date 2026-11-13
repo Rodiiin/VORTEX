@@ -52,51 +52,59 @@ export default function MainMenu({
 
   return (
     <div className="vortex-mainmenu-container" role="main">
+      {/* ===================================================================
+          ESCENARIO: imagen de fondo + nodos con la misma proporción (1440x1024).
+          Los nodos se posicionan en % del escenario, así que siempre caen
+          sobre la misma parte del boxeador sin importar el tamaño de pantalla.
+          =================================================================== */}
+      <div className="vortex-stage vortex-stage-bg" aria-hidden="true" />
+
       {/* Capa de viñeta ambiental sutil para realzar el contraste de la interfaz */}
       <div className="vortex-vignette-overlay" aria-hidden="true" />
 
+      <div className="vortex-stage vortex-stage-nodes">
 
+        {/* ===================================================================
+            NODOS INTERACTIVOS (PUÑO, CODO, CINTURA)
+            Reposo: solo el anillo fino es visible.
+            Hover/Focus: el anillo se vuelve neón, la línea vertical crece
+            hacia abajo y se revela el texto de la opción (CSS puro).
+            =================================================================== */}
+        <button
+          type="button"
+          className="node-wrapper node-punch"
+          onClick={handlePlay}
+          aria-label={t('aria_jugar')}
+        >
+          <span className="node-ring" aria-hidden="true" />
+          <span className="node-line" aria-hidden="true" />
+          <span className="node-label">
+            {t('nueva_partida')} /<br />{t('continuar_partida')}
+          </span>
+        </button>
 
-      {/* ===================================================================
-          NODOS INTERACTIVOS (PUÑO, CODO, CINTURA)
-          Reposo: solo el anillo fino es visible.
-          Hover/Focus: el anillo se vuelve neón, la línea vertical crece
-          hacia abajo y se revela el texto de la opción (CSS puro).
-          =================================================================== */}
-      <button
-        type="button"
-        className="node-wrapper node-punch"
-        onClick={handlePlay}
-        aria-label={t('aria_jugar')}
-      >
-        <span className="node-ring" aria-hidden="true" />
-        <span className="node-line" aria-hidden="true" />
-        <span className="node-label">
-          {t('nueva_partida')} /<br />{t('continuar_partida')}
-        </span>
-      </button>
+        <button
+          type="button"
+          className="node-wrapper node-elbow"
+          onClick={handleSettings}
+          aria-label={t('aria_configuracion')}
+        >
+          <span className="node-ring" aria-hidden="true" />
+          <span className="node-line" aria-hidden="true" />
+          <span className="node-label">{t('configuracion')}</span>
+        </button>
 
-      <button
-        type="button"
-        className="node-wrapper node-elbow"
-        onClick={handleSettings}
-        aria-label={t('aria_configuracion')}
-      >
-        <span className="node-ring" aria-hidden="true" />
-        <span className="node-line" aria-hidden="true" />
-        <span className="node-label">{t('configuracion')}</span>
-      </button>
-
-      <button
-        type="button"
-        className="node-wrapper node-waist"
-        onClick={handleExit}
-        aria-label={t('aria_salir')}
-      >
-        <span className="node-ring" aria-hidden="true" />
-        <span className="node-line" aria-hidden="true" />
-        <span className="node-label">{t('salir')}</span>
-      </button>
+        <button
+          type="button"
+          className="node-wrapper node-waist"
+          onClick={handleExit}
+          aria-label={t('aria_salir')}
+        >
+          <span className="node-ring" aria-hidden="true" />
+          <span className="node-line" aria-hidden="true" />
+          <span className="node-label">{t('salir')}</span>
+        </button>
+      </div>
 
       {/* ===================================================================
           TÍTULO PRINCIPAL "VORTEX" EN LA ESQUINA INFERIOR IZQUIERDA

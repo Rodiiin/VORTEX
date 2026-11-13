@@ -251,3 +251,34 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 560px) {
+  .game-engine-wrapper {
+    padding: 0.75rem;
+  }
+
+  .game-engine-topbar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .game-engine-title {
+    font-size: 1.4rem;
+  }
+
+  .btn-engine-menu {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .live-combat-banner {
+    bottom: 12px;
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .game-telemetry-panel {
+    padding: 1rem;
+  }
+}
