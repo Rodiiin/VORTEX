@@ -161,10 +161,8 @@ VORTEX/
             ├── Register.css              # Estilos del formulario de registro
             ├── MainMenu.jsx              # Vista 3: Menú Principal Split-Screen (Arte HUD + Opciones)
             ├── MainMenu.css              # Estilos, efectos hover y responsividad del menú
-            ├── Calibration.jsx           # Vista 4: Calibración de movimientos con MediaPipe Pose (Paso 0 a 4)
+            ├── Calibration.jsx           # Vista 4: Calibración (guardia, jab, gancho, esquiva) y práctica libre con MediaPipe Pose
             ├── Calibration.css           # Estilos e interfaz HUD de calibración biométrica
-            ├── GameEngine.jsx            # Vista 5: Motor de juego (Placeholder con esqueleto y telemetría en vivo)
-            ├── GameEngine.css            # Estilos del motor de combate
             ├── DashboardPlaceholder.jsx  # Vista 6: Centro de control post-login y estado de conexión
             └── DashboardPlaceholder.css  # Estilos del panel de control
 ```

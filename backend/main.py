@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import check_db_connection, engine, Base
 import models
 from auth import router as auth_router
+from calibration import router as calibration_router
 
 # Inicialización automática de tablas en PostgreSQL
 try:
@@ -31,6 +32,7 @@ app.add_middleware(
 
 # Inclusión del enrutador de autenticación
 app.include_router(auth_router, prefix="/api/auth", tags=["Autenticación"])
+app.include_router(calibration_router, prefix="/api/calibration", tags=["Calibración"])
 
 @app.get("/")
 def read_root():

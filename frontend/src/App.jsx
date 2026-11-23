@@ -5,13 +5,12 @@ import MainMenu from './components/MainMenu';
 import Levels from './components/Levels';
 import Configuracion from './components/Configuracion';
 import Calibration from './components/Calibration';
-import GameEngine from './components/GameEngine';
+import { logoutSession } from './utils/api';
 
 export default function App() {
-  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'levels' | 'config' | 'calibration' | 'game'
+  // Estado de vista de la aplicación: 'login' | 'register' | 'menu' | 'levels' | 'config' | 'calibration'
   const [currentView, setCurrentView] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
-  const [calibrationData, setCalibrationData] = useState(null);
 
   // La vista inicial al cargar la aplicación (http://localhost:5173) siempre es 'login'
   // El Menú Principal se presenta únicamente cuando el usuario inicia sesión exitosamente.
@@ -35,16 +34,12 @@ export default function App() {
 
   // Manejador de cierre de sesión
   const handleLogout = () => {
+    // Invalida la sesión en el servidor (si falla, igual se cierra localmente)
+    logoutSession().catch(() => {});
     localStorage.removeItem('vortex_token');
     localStorage.removeItem('vortex_user');
     setCurrentUser(null);
     setCurrentView('login');
-  };
-
-  // Manejador de finalización de calibración
-  const handleCalibrationComplete = (params) => {
-    setCalibrationData(params);
-    setCurrentView('game');
   };
 
   return (
@@ -94,15 +89,6 @@ export default function App() {
       {/* VISTA 6: CALIBRACIÓN BIOMECÁNICA PRE-PARTIDA */}
       {currentView === 'calibration' && (
         <Calibration
-          onCalibrationComplete={handleCalibrationComplete}
-          onBackToMenu={() => setCurrentView('menu')}
-        />
-      )}
-
-      {/* VISTA 7: MOTOR DE JUEGO (GAME ENGINE PLACEHOLDER) */}
-      {currentView === 'game' && (
-        <GameEngine
-          calibrationData={calibrationData}
           onBackToMenu={() => setCurrentView('menu')}
         />
       )}

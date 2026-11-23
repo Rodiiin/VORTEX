@@ -363,6 +363,312 @@
   font-weight: 700;
 }
 
+/* Botón secundario (contorno lavanda) y principal (relleno neón) */
+.btn-calib-secondary {
+  border-color: var(--cb-color-lavender);
+  color: var(--cb-color-lavender);
+}
+
+.btn-calib-secondary:hover:not(:disabled),
+.btn-calib-secondary:focus-visible:not(:disabled) {
+  background: var(--cb-color-lavender);
+  color: var(--cb-color-bg);
+  box-shadow: none;
+}
+
+.btn-calib-primary {
+  background: var(--cb-color-neon);
+  color: var(--cb-color-bg);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   POPUPS (DISEÑO assets/Pop up.png)
+   Marco rectangular gris sin esquinas redondeadas, fondo casi negro, texto
+   monoespaciado con mucho espaciado entre letras y opciones como texto:
+   la principal en neón y la secundaria en blanco.
+   ========================================================================== */
+.calib-modal-backdrop {
+  --cb-popup-bg: #0A0B0F;
+  --cb-popup-border: #9A9A9A;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cb-gap);
+  background: rgba(10, 11, 15, 0.82);
+}
+
+.calib-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.25rem, 3.5vh, 2.25rem);
+  width: min(1050px, 100%);
+  min-height: min(560px, calc(100dvh - 2 * var(--cb-gap)));
+  max-height: calc(100dvh - 2 * var(--cb-gap));
+  overflow-y: auto;
+  padding: clamp(1.5rem, 5vw, 4.5rem) clamp(1.25rem, 6vw, 6rem);
+  border: 3px solid var(--cb-popup-border);
+  border-radius: 0;
+  background: var(--cb-popup-bg);
+  text-align: center;
+}
+
+.calib-modal-title {
+  margin: 0;
+  font-size: clamp(1.1rem, 2.3vw, 1.75rem);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--cb-color-white);
+}
+
+.calib-modal-text {
+  margin: 0;
+  max-width: 54ch;
+  font-size: clamp(0.85rem, 1.3vw, 1rem);
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: rgba(243, 243, 238, 0.75);
+}
+
+.calib-modal-error {
+  color: var(--cb-color-danger);
+}
+
+/* La guía es una silueta negra sobre blanco: se invierte para verse blanca sobre el fondo negro */
+.calib-modal-image {
+  display: block;
+  width: min(420px, 100%);
+  max-height: 48vh;
+  object-fit: contain;
+  filter: invert(1);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.calib-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(1.5rem, 8vw, 8rem);
+  width: 100%;
+  margin-top: clamp(0.5rem, 2vh, 1.5rem);
+}
+
+/* Opciones del popup: texto plano, sin caja (como "Opción 1 / Opción 2") */
+.calib-modal-actions .btn-calib-action {
+  width: auto;
+  min-width: 0;
+  padding: 0.5rem 0.25rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--cb-color-white);
+  font-family: inherit;
+  font-size: clamp(1rem, 2.2vw, 1.6rem);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: none;
+  text-underline-offset: 0.35em;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.calib-modal-actions .btn-calib-primary {
+  color: var(--cb-color-neon);
+}
+
+.calib-modal-actions .btn-calib-action:hover:not(:disabled),
+.calib-modal-actions .btn-calib-action:focus-visible:not(:disabled) {
+  background: transparent;
+  box-shadow: none;
+  color: var(--cb-color-neon);
+  text-decoration: underline;
+  text-shadow: 0 0 12px var(--cb-neon-glow);
+}
+
+.calib-modal-actions .btn-calib-action:disabled {
+  color: rgba(243, 243, 238, 0.35);
+}
+
+/* Puntuación de la guardia */
+.calib-score {
+  --score-color: var(--cb-color-neon);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.calib-score.is-regular { --score-color: #F5D442; }
+.calib-score.is-repetir { --score-color: var(--cb-color-danger); }
+
+.calib-score-value {
+  font-size: clamp(3.5rem, 9vw, 6rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--score-color);
+}
+
+.calib-score-max {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cb-color-lavender);
+}
+
+.calib-score-label {
+  margin-top: 0.25rem;
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--score-color);
+}
+
+.calib-result-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  width: min(460px, 100%);
+  text-align: left;
+}
+
+.calib-result-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.calib-result-row .calib-progress-bar-bg {
+  height: 8px;
+}
+
+/* Detalles de la guardia (alcance, ángulos, profundidad por brazo) */
+.calib-details {
+  width: min(560px, 100%);
+  text-align: left;
+  border: 1px solid var(--cb-popup-border);
+  padding: 0.75rem 1rem;
+}
+
+.calib-details-summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: var(--cb-color-white);
+}
+
+.calib-details-summary:hover,
+.calib-details-summary:focus-visible {
+  color: var(--cb-color-neon);
+  outline: none;
+}
+
+.calib-details[open] .calib-details-summary {
+  margin-bottom: 0.75rem;
+  color: var(--cb-color-neon);
+}
+
+.calib-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.calib-details-table th,
+.calib-details-table td {
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px solid rgba(154, 154, 154, 0.25);
+}
+
+.calib-details-table thead th {
+  font-weight: 600;
+  color: var(--cb-color-white);
+  text-align: right;
+}
+
+.calib-details-table thead th:first-child,
+.calib-details-table tbody th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--cb-color-lavender);
+}
+
+.calib-details-table td {
+  text-align: right;
+  color: var(--cb-color-white);
+}
+
+.calib-details-table td.is-bad {
+  color: var(--cb-color-danger);
+  font-weight: 600;
+}
+
+.calib-details-profile {
+  margin-top: 1rem;
+}
+
+.calib-details-profile caption {
+  padding-bottom: 0.4rem;
+  text-align: left;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  color: var(--cb-color-neon);
+}
+
+.calib-details-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.calib-details-foot .is-ok {
+  color: var(--cb-color-neon);
+}
+
+.calib-details-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(243, 243, 238, 0.6);
+}
+
+/* ==========================================================================
+   CUENTA REGRESIVA (CENTRO DE LA PANTALLA)
+   ========================================================================== */
+.calib-countdown {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.calib-countdown-number {
+  font-size: clamp(7rem, 24vw, 15rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--cb-color-neon);
+  text-shadow: 0 0 40px var(--cb-neon-glow);
+  animation: calibCountPop 1s ease-out;
+}
+
+@keyframes calibCountPop {
+  0% { transform: scale(1.35); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+
 /* ==========================================================================
    CÁMARA PICTURE-IN-PICTURE (ABAJO A LA DERECHA)
    ========================================================================== */
@@ -483,4 +789,37 @@
   .telemetry-dot-live {
     animation: none;
   }
+
+  .calib-countdown-number {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   SANDBOX (PASO 5): TABLA DE ESTADÍSTICAS EN VIVO EN EL PANEL LATERAL
+   ========================================================================== */
+.calib-sandbox-table {
+  font-size: 0.72rem;
+}
+
+.calib-sandbox-table th,
+.calib-sandbox-table td {
+  padding: 0.3rem 0.3rem;
+}
+
+.calib-sandbox-table td.is-ok {
+  color: var(--cb-color-neon);
+  font-weight: 600;
+}
+
+.calibration-step-body .calib-details-note {
+  margin: 0;
+}
+
+/* Lista vertical de opciones (elegir el movimiento a recalibrar) */
+.calib-modal-actions.calib-modal-actions-list {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0;
 }
